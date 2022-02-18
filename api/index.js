@@ -2,6 +2,7 @@
 // https://www.naenano.cn/home
 // const BASE_URL = 'http://47.108.129.64:6688/'
 const BASE_URL = 'https://www.naenano.cn/api/'
+export const BASE_IMG = 'https://www.naenano.cn'
 
 export default ({
 	method = "post",
@@ -16,7 +17,7 @@ export default ({
 			data,
 			header,
 			success(res) {
-				resolve(res)
+				resolve(res.data)
 			},
 			fail(error) {
 				reject(error)

@@ -1,51 +1,40 @@
 <template>
-	<view class="content">首页</view>
+	<page class="index"><u-swiper :list="list" indicatorMode="line" keyName="url" :autoplay="false" class="swiper"></u-swiper></page>
 </template>
 
 <script>
-import $api from '@/api';
+import $api, { BASE_IMG } from '@/api';
 export default {
 	data() {
 		return {
-			title: 'Hello'
+			list: []
 		};
 	},
 	onLoad() {
+		// this.fetchData();
+	},
+	mounted() {
 		this.fetchData();
 	},
 	methods: {
 		async fetchData() {
-			const res = await $api({ method: 'get', url: 'get-recent-other-contest' });
-			console.log(res);
+			const { data } = await $api({ method: 'get', url: 'home-carousel' });
+			this.list = data.map(i => ({
+				...i,
+				url: BASE_IMG + i.url
+			}));
+			console.log(this.list);
 		}
 	}
 };
 </script>
 
-<style>
-.content {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-
-.logo {
-	height: 200rpx;
-	width: 200rpx;
-	margin-top: 200rpx;
-	margin-left: auto;
-	margin-right: auto;
-	margin-bottom: 50rpx;
-}
-
-.text-area {
-	display: flex;
-	justify-content: center;
-}
-
-.title {
-	font-size: 36rpx;
-	color: #8f8f94;
+<style lang="scss" scoped>
+.index {
+	.swiper {
+		height: 200rpx;
+		border: 2rpx solid #f0f0f0;
+		padding: 10rpx;
+	}
 }
 </style>

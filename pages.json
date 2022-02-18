@@ -5,12 +5,12 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
-		},{
+		}, {
 			"path": "pages/problem/problem",
 			"style": {
 				"navigationStyle": "custom"
 			}
-		},{
+		}, {
 			"path": "pages/message/message",
 			"style": {
 				"navigationStyle": "custom"
@@ -21,7 +21,7 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
-		},{
+		}, {
 			"path": "pages/my/my",
 			"style": {
 				"navigationStyle": "custom"
@@ -36,23 +36,29 @@
 	},
 
 	"tabBar": {
+		"fontSize":"12px",
+		"backgroundColor":"transparent",
 		"list": [{
 			"pagePath": "pages/index/index",
 			"text": "首页",
-			"iconPath": ""
+			"iconPath": "static/tabbar/home.png",
+			"selectedIconPath": "static/tabbar/home-a.png"
 		}, {
 			"pagePath": "pages/problem/problem",
 			"text": "题库",
-			"iconPath": ""
+			"iconPath": "static/tabbar/list.png",
+			"selectedIconPath": "static/tabbar/list-a.png"
 		}, {
 			"pagePath": "pages/discuss/discuss",
 			"text": "交流区",
-			"iconPath": ""
+			"iconPath": "static/tabbar/discuss.png",
+			"selectedIconPath": "static/tabbar/discuss-a.png"
 		}, {
 			"pagePath": "pages/my/my",
 			"text": "我",
-			"iconPath": ""
-		} ]
+			"iconPath": "static/tabbar/my.png",
+			"selectedIconPath": "static/tabbar/my-a.png"
+		}]
 	},
 	"easycom": {
 		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
