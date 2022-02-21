@@ -1,3 +1,7 @@
 @mixin base-layout {
-	padding: 20rpx;
+	padding:40rpx 20rpx;
+}
+
+@mixin box-shadow-1 {
+	box-shadow: 0 -2rpx 10rpx 8rpx #00000010;
 }
