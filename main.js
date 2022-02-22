@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import App from './App'
 import uView from 'uview-ui'
-import page from '@/components/page.vue'
+// import page from '@/components/page.vue'
 import myPlugin from '@/plugin'
-Vue.component('page', page)
+import '@/scss/index.scss'
 Vue.use(uView)
 Vue.use(myPlugin)
 

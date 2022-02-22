@@ -8,9 +8,9 @@
 <script></script>
 
 <style lang="scss" scoped>
+
 .page {
-	min-height: 100vh;
-	// background-color: #fafafa;
+	box-sizing: border-box;
 	@include base-layout;
 }
 .status-bar {

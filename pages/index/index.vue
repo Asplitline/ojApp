@@ -1,5 +1,5 @@
 <template>
-	<page class="index">
+	<t-page class="index">
 		<u-swiper :list="carouselList" indicatorMode="line" keyName="url" :autoplay="false" class="swiper"></u-swiper>
 
 		<view class="rank-content">
@@ -37,11 +37,10 @@
 						<view class="text"><text>时间：2020-12-12 12:30</text></view>
 						<view class="text"><text>时长: 12:30</text></view>
 					</view>
-					<!-- <u-tag :text="i.oj" plain></u-tag> -->
 				</view>
 			</view>
 		</view>
-	</page>
+	</t-page>
 </template>
 
 <script>
