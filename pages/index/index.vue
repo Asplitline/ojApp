@@ -3,8 +3,12 @@
 		<u-swiper :list="carouselList" indicatorMode="line" keyName="url" :autoplay="false" class="swiper"></u-swiper>
 
 		<view class="rank-content">
+			<view class="rank-header">
+				<text class="title">排行榜</text>
+				<text class="more">更多</text>
+				<u-icon name="arrow-right" color="#fff"></u-icon>
+			</view>
 			<view class="rank-list">
-				<text class="rank-title">排行榜</text>
 				<view class="rank-item" v-for="(i, index) in rankList" :key="i.id">
 					<view class="rank-item__index">
 						<template v-if="index < 3">
@@ -28,6 +32,9 @@
 		</view>
 
 		<view class="recent-contest">
+			<view class="recent-header">
+				<text class="title">最近比赛</text>
+			</view>
 			<view class="recent-list">
 				<view class="recent-item" v-for="i in recentOtherContest" :key="i.id">
 					<view class="recent-item__top">
@@ -100,85 +107,113 @@ export default {
 	overflow: scroll;
 	overflow-x: hidden;
 	.swiper {
-		height: 200rpx;
-		border: 2rpx solid #f0f0f0;
 		padding: 10rpx;
+		height: 200rpx;
+		border-radius: 20rpx;
 	}
-	.rank-title {
-		font-size: 48rpx;
-		position: absolute;
-		top: -34rpx;
-		left: 50%;
-		transform: translateX(-50%);
-		background-color: $uni-color-white;
-		width: 200rpx;
-		text-align: center;
-	}
-	.rank-list {
-		position: relative;
-		margin-top: 80rpx;
-		margin-bottom: 80rpx;
-		padding: 40rpx 10rpx;
-		background-color: $uni-color-white;
-		border: 2rpx solid $uni-border-color;
-		border-radius: 8rpx;
-		.rank-item {
+	.rank-content {
+		margin: 40rpx 0;
+		.rank-header {
 			display: flex;
-			justify-content: space-between;
 			align-items: center;
-			padding: 16rpx 0;
-			font-size: 32rpx;
-			&__img {
-				max-width: 140rpx;
+			padding: 26rpx 30rpx;
+			background-color: $uni-color-primary;
+			color:$uni-color-white;
+			border-radius: 20rpx 20rpx 0 0;
+			.title {
+				flex: 1;
 			}
-			&__avatar {
-				width: 70rpx;
-				height: 70rpx;
-				border-radius: 50%;
-			}
-
-			&__first {
+			.more {
 				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 70rpx;
-				height: 70rpx;
-				border-radius: 50%;
-				background-color: $uni-color-primary;
-				font-size: 36rpx;
-				color: $uni-color-white;
-			}
-			&__index {
-				min-width: 120rpx;
-				text-align: center;
-				.ico-trophy {
-					height: 64rpx;
-					width: 64rpx;
+				.text {
 				}
 			}
-			&__name {
-				flex: 1;
-				padding-left: 40rpx;
-			}
-			&__ac {
-				min-width: 120rpx;
-				text-align: center;
-				font-size: 48rpx;
-				color: $uni-color-dark;
+		}
+		.rank-list {
+			position: relative;
+			padding: 24rpx 10rpx;
+			background-color: $uni-color-white;
+			border: 2rpx solid $uni-border-color;
+			border-radius: 0 0 20rpx 20rpx;
+			.rank-item {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 16rpx 0;
+				font-size: 32rpx;
+				&__img {
+					max-width: 140rpx;
+				}
+				&__avatar {
+					width: 70rpx;
+					height: 70rpx;
+					border-radius: 50%;
+				}
 
-				.suffix {
-					font-size: 28rpx;
-					margin-left: 18rpx;
-					color: $uni-text-color-grey;
+				&__first {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 70rpx;
+					height: 70rpx;
+					border-radius: 50%;
+					background-color: $uni-color-primary;
+					font-size: 36rpx;
+					color: $uni-color-white;
+				}
+				&__index {
+					min-width: 100rpx;
+					text-align: center;
+					.ico-trophy {
+						height: 64rpx;
+						width: 64rpx;
+					}
+				}
+				&__name {
+					width: 480rpx;
+					text-overflow: ellipsis;
+					overflow: hidden;
+					white-space: nowrap;
+					padding-left: 20rpx;
+				}
+				&__ac {
+					min-width: 120rpx;
+					text-align: center;
+					font-size: 48rpx;
+					color: $uni-color-dark;
+
+					.suffix {
+						font-size: 28rpx;
+						margin-left: 18rpx;
+						color: $uni-text-color-grey;
+					}
 				}
 			}
 		}
 	}
 	.recent-contest {
-		background-color: $uni-color-white;
+		.recent-header {
+			display: flex;
+			align-items: center;
+			padding: 26rpx 30rpx;
+			background-color: $uni-color-success;
+			color:$uni-color-white;
+			border-radius: 20rpx 20rpx 0 0;
+			.title {
+				flex: 1;
+			}
+			.more {
+				display: flex;
+				.text {
+				}
+			}
+		}
 		.recent-list {
 			display: flex;
 			flex-wrap: wrap;
+			padding: 20rpx;
+			background-color: #fff;
+			border-radius: 0 0 20rpx 20rpx;
 			.recent-item {
 				display: flex;
 				flex-direction: column;

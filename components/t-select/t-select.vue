@@ -9,6 +9,7 @@
 </template>
 
 <script>
+// done select {single | multiple}
 export default {
 	props: {
 		valName: {
