@@ -1,9 +1,7 @@
 <template>
-	<view class="t-select">
+	<view class="t-select" :class="{ multiple: multiple }">
 		<view class="t-select-list">
-			<view class="t-select-item" v-for="i in showList" :key="i[keyName]"
-				:class="{active:i._isActive}" @click="setActive(i)">
-				{{i[valName]}}</view>
+			<view class="t-select-item" v-for="i in showList" :key="i[keyName]" :class="{ active: i._isActive }" @click="setActive(i)">{{ i[valName] }}</view>
 		</view>
 	</view>
 </template>
@@ -14,11 +12,11 @@ export default {
 	props: {
 		valName: {
 			type: String,
-			default: 'text'
+			default: 'value'
 		},
 		keyName: {
 			type: String,
-			default: 'id'
+			default: 'key'
 		},
 		active: {
 			type: [String, Number, Array]
@@ -33,45 +31,45 @@ export default {
 		}
 	},
 	data() {
-		return {}
+		return {};
+	},
+	mounted(){
+		console.log(this.active);
 	},
 	computed: {
 		showList() {
-			return this.list.map((i) => {
-				const _isActive = this.multiple
-					? this.active.includes(i[this.keyName])
-					: i[this.keyName] === this.active
-				return { ...i, _isActive }
-			})
+			return this.list.map(i => {
+				const _isActive = this.multiple ? this.active.includes(i[this.keyName]) : i[this.keyName] === this.active;
+				return { ...i, _isActive };
+			});
 		}
 	},
 	methods: {
 		setActive(i) {
 			if (!this.multiple) {
-				this.$emit('change', i)
+				this.$emit('update:active', i);
 			} else {
-				let arr = JSON.parse(JSON.stringify(this.active))
+				let arr = JSON.parse(JSON.stringify(this.active));
 				if (arr.includes(i[this.keyName])) {
-					const idx = arr.findIndex((v) => v === i[this.keyName])
-					console.log(idx)
-					idx === -1 ? arr : arr.splice(idx, idx + 1)
+					const idx = arr.findIndex(v => v === i[this.keyName]);
+					console.log(idx);
+					idx === -1 ? arr : arr.splice(idx, idx + 1);
 				} else {
-					arr.push(i[this.keyName])
+					arr.push(i[this.keyName]);
 				}
-				this.$emit('change', arr)
+				this.$emit('change', arr);
 			}
 		},
 		toggleActive() {},
 		selectClass(i) {
-			console.log(i)
 			if (!this.multiple) {
-				return i[this.keyName] === this.active ? 'active' : ''
+				return i[this.keyName] === this.active ? 'active' : '';
 			} else {
-				return this.active.includes(i[this.keyName]) ? 'active' : ''
+				return this.active.includes(i[this.keyName]) ? 'active' : '';
 			}
 		}
 	}
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -91,7 +89,15 @@ export default {
 				margin-right: 0;
 			}
 			&.active {
+				background-color: $uni-bg-color-primary;
 				color: $uni-color-primary;
+			}
+		}
+	}
+	&.multiple {
+		.t-select-list {
+			.t-select-item {
+				border-radius: 27rpx;
 			}
 		}
 	}

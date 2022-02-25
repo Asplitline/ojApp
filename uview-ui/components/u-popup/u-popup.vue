@@ -7,6 +7,7 @@
 			:duration="overlayDuration"
 			:customStyle="overlayStyle"
 			:opacity="overlayOpacity"
+			@touchmove.native.prevent
 		></u-overlay>
 		<u-transition
 			:show="show"

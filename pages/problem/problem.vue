@@ -7,68 +7,68 @@
 			</view>
 		</view>
 		<view class="center-content">
-			<u-tabs class="problem-tabs" :list="list4" lineWidth="30" lineColor=" #4b55ff"
+			<u-tabs
+				class="problem-tabs"
+				:list="[]"
+				lineWidth="30"
+				lineColor=" #4b55ff"
 				:activeStyle="{
 					color: '#303133',
 					fontWeight: 'bold',
 					transform: 'scale(1.05)'
-				}" :inactiveStyle="{
+				}"
+				:inactiveStyle="{
 					color: '#606266',
 					transform: 'scale(1)'
-				}" itemStyle="padding-left: 15px; padding-right: 15px; height: 34px;">
-				<view slot="right" style="padding-left: 4px;" @tap="$u.toast('插槽被点击')">
-					<u-icon name="list" size="21" bold @click="showPopup"></u-icon>
-				</view>
+				}"
+				itemStyle="padding-left: 15px; padding-right: 15px; height: 34px;"
+			>
+				<view slot="right" style="padding-left: 4px;" @tap="$u.toast('插槽被点击')"><u-icon name="list" size="21" bold @click="showPopup"></u-icon></view>
 			</u-tabs>
 		</view>
 		<view class="problem-list">
 			<view class="problem-item" v-for="i in problemList" :key="i.id">
 				<view class="problem-item__title">
-					<text class="tag">简单</text>
-					<text class="text">{{i.title}}</text>
+					<text class="tag" :class="[PROBLEM_LEVEL[i.difficulty].class]">{{ PROBLEM_LEVEL[i.difficulty].value }}</text>
+					<text class="text">{{ i.title }}</text>
 					<view class="no">
 						<text class="prefix">No.</text>
-						{{i.problemId}}
+						{{ i.problemId }}
 					</view>
 				</view>
 				<view class="problem-item__desc">
 					<u-icon name="minus" class="status">-</u-icon>
 					<view class="desc">
 						<text class="title">提交数</text>
-						<text class="num">{{i.total}}</text>
+						<text class="num">{{ i.total }}</text>
 					</view>
 					<view class="desc">
 						<text class="title">通过率</text>
-						<text class="num">{{handlePercentage(i.ac,i.total)}}%</text>
+						<text class="num">{{ handlePercentage(i.ac, i.total) }}%</text>
 					</view>
 				</view>
 			</view>
+			<u-loadmore :status="status" @loadmore="loadData" />
 		</view>
-
-		<u-popup :show="show" :round="10" mode="bottom" @close="close" @open="open">
+		<u-popup :show="show" :round="10" mode="bottom" class="filter-popup">
 			<view class="filter-box">
 				<view class="filter-header">
 					<text class="reset">重置</text>
 					<text class="title">筛选题目</text>
-					<text class="confirm" @click="closePopup">确定</text>
+					<text class="confirm" @click="confirmFilter">确定</text>
 				</view>
 				<view class="filter-list">
 					<view class="filter-item">
 						<view class="filter-item__title">题库类型</view>
-						<t-select :list="list" :active="active" @change="setActive"></t-select>
+						<t-select :list="REMOTE_OJ" :active.sync="query.oj"></t-select>
 					</view>
 					<view class="filter-item">
-						<view class="filter-item__title">题库类型</view>
-						<t-select :list="list1" :active="active" @change="setActive"></t-select>
+						<view class="filter-item__title">题目难度</view>
+						<t-select :list="PROBLEM_LEVEL_RESERVE" :active.sync="query.difficulty"></t-select>
 					</view>
 					<view class="filter-item">
-						<view class="filter-item__title">筛选状态</view>
-						<t-select :list="list2" :active="active" @change="setActive"></t-select>
-					</view>
-					<view class="filter-item">
-						<view class="filter-item__title">筛选状态</view>
-						<t-select :list="list3" :active="mulActive" @change="setMulActive"
-							:multiple="true"></t-select>
+						<view class="filter-item__title">题目标签</view>
+						<t-select :list="tags" :active.sync="query.tagId" valName="name" keyName="id" ></t-select>
 					</view>
 				</view>
 			</view>
@@ -77,94 +77,94 @@
 </template>
 
 <script>
+import { REMOTE_OJ, PROBLEM_LEVEL, PROBLEM_LEVEL_RESERVE } from '@/utils/static';
 export default {
 	data() {
 		return {
 			keyword: null,
-			list4: [
-				{
-					name: '关注'
-				},
-				{
-					name: '推荐'
-				}
-			],
-			active: 1,
+			status: 'loadmore',
+			query: {
+				currentPage: 1,
+				limit: 15,
+				oj: 'All',
+				difficulty: '',
+				tagId: ''
+			},
+			total: 10,
 			mulActive: [],
 			problemList: [],
-			list: [
-				{ id: 1, text: '全部' },
-				{ id: 2, text: '简单' },
-				{ id: 3, text: '中等' },
-				{ id: 4, text: '困难' }
-			],
-			list1: [
-				{ id: 1, text: '全部' },
-				{ id: 2, text: '简单简单' },
-				{ id: 3, text: '中等中等' },
-				{ id: 4, text: '困难困难' },
-				{ id: 5, text: '困难困难' },
-				{ id: 6, text: '困难困难' },
-				{ id: 7, text: '困难困难' }
-			],
-			list2: [
-				{ id: 1, text: '全部' },
-				{ id: 2, text: '未做' },
-				{ id: 3, text: '已解答' },
-				{ id: 4, text: '尝试过' }
-			],
-			list3: [
-				{ id: 1, text: '全部' },
-				{ id: 2, text: '未做' },
-				{ id: 3, text: '已解答' },
-				{ id: 4, text: '尝试过' },
-				{ id: 5, text: '尝试过' },
-				{ id: 6, text: '尝试过' },
-				{ id: 7, text: '尝试过' },
-				{ id: 8, text: '尝试过' },
-				{ id: 9, text: '尝试过' },
-				{ id: 10, text: '尝试过' },
-				{ id: 11, text: '尝试过' }
-			],
-			show: false
-		}
+			show: false,
+			tags: [],
+			REMOTE_OJ,
+			PROBLEM_LEVEL,
+			PROBLEM_LEVEL_RESERVE
+		};
 	},
 	methods: {
 		search() {
-			console.log('search')
+			console.log('search');
 		},
 		showPopup() {
-			this.show = true
-		},
-		closePopup() {
-			this.show = false
+			this.show = true;
+			this.fetchTags();
 		},
 		setActive(v) {
-			this.active = v.id
+			this.active = v.id;
 		},
 		setMulActive(v) {
-			this.mulActive = v
-			console.log(v)
+			this.mulActive = v;
+			console.log(v);
 		},
 		handlePercentage(ac, all) {
-			const percentage = (ac / all) * 100
-			if (Number.isNaN(percentage)) return '00.00'
-			else return percentage.toFixed(2)
+			const percentage = (ac / all) * 100;
+			if (Number.isNaN(percentage)) return '00.00';
+			else return percentage.toFixed(2);
+		},
+		loadData() {
+			if (this.isFull) return;
+			else {
+				this.query.currentPage++;
+				this.fetchProblemList();
+			}
+		},
+		async fetchTags() {
+			const { data } = await this.$api({ url: 'get-all-problem-tags', method: 'get' });
+			this.tags = data;
+		},
+		confirmFilter() {
+			this.query.currentPage = 1;
+			this.fetchProblemList();
+			this.show = false;
 		},
 		async fetchProblemList() {
+			this.status = 'loading';
 			const { data } = await this.$api({
 				url: 'get-problem-list',
-				method: 'get'
-			})
-			console.log(data.total)
-			this.problemList = data.records
-			console.log(this.problemList)
+				method: 'get',
+				data: this.query
+			});
+			this.total = data.total;
+			if (this.isFull) {
+				this.status = 'nomore';
+			} else {
+				this.problemList.push(...data.records);
+				if (this.isFull) this.status = 'nomore';
+				else this.status = 'loadmore';
+			}
+		}
+	},
+	onReachBottom() {
+		this.loadData();
+	},
+	computed: {
+		isFull() {
+			return this.total === this.problemList.length;
 		}
 	},
 	mounted() {
-		this.fetchProblemList()
+		this.fetchProblemList();
 	}
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -282,11 +282,14 @@ export default {
 		}
 	}
 }
+.filter-popup {
+}
 
 .filter-box {
 	padding: 40rpx 30rpx;
 	.filter-header {
 		display: flex;
+		padding-bottom: 30rpx;
 		.reset {
 			color: #999;
 		}
@@ -301,7 +304,9 @@ export default {
 		}
 	}
 	.filter-list {
-		padding: 40rpx 0;
+		padding: 0 0 40rpx;
+		max-height: 800rpx;
+		overflow-y: scroll;
 		.filter-item {
 			padding-bottom: 30rpx;
 			&__title {
