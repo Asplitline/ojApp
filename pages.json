@@ -26,6 +26,13 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/problem/problemDetail",
+			"style": {
+				"navigationStyle": "custom"
+			}
+
 		}
 	],
 	"globalStyle": {
@@ -36,8 +43,8 @@
 	},
 
 	"tabBar": {
-		"fontSize":"12px",
-		"backgroundColor":"#fff",
+		"fontSize": "12px",
+		"backgroundColor": "#fff",
 		"list": [{
 			"pagePath": "pages/index/index",
 			"text": "首页",

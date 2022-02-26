@@ -47,7 +47,8 @@ export default {
 	methods: {
 		setActive(i) {
 			if (!this.multiple) {
-				this.$emit('update:active', i);
+				console.log(i);
+				this.$emit('update:active', i[this.keyName]);
 			} else {
 				let arr = JSON.parse(JSON.stringify(this.active));
 				if (arr.includes(i[this.keyName])) {

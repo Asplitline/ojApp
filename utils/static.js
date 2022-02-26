@@ -48,12 +48,12 @@ export const PROBLEM_LEVEL_RESERVE = [{
 	key: '',
 	value: '全部'
 }, {
-	key: 'Easy',
+	key: 0,
 	value: '简单'
 }, {
-	key: 'Mid',
+	key: 1,
 	value: '中等'
 }, {
-	key: 'Hard',
+	key: 2,
 	value: '困难'
 }]

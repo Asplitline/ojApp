@@ -7,27 +7,12 @@
 			</view>
 		</view>
 		<view class="center-content">
-			<u-tabs
-				class="problem-tabs"
-				:list="[]"
-				lineWidth="30"
-				lineColor=" #4b55ff"
-				:activeStyle="{
-					color: '#303133',
-					fontWeight: 'bold',
-					transform: 'scale(1.05)'
-				}"
-				:inactiveStyle="{
-					color: '#606266',
-					transform: 'scale(1)'
-				}"
-				itemStyle="padding-left: 15px; padding-right: 15px; height: 34px;"
-			>
+			<u-tabs class="problem-tabs" :list="PROBLEM_LEVEL_RESERVE" lineWidth="30" lineColor=" #4b55ff" keyName="value" @click="changeTabs">
 				<view slot="right" style="padding-left: 4px;" @tap="$u.toast('插槽被点击')"><u-icon name="list" size="21" bold @click="showPopup"></u-icon></view>
 			</u-tabs>
 		</view>
 		<view class="problem-list">
-			<view class="problem-item" v-for="i in problemList" :key="i.id">
+			<view class="problem-item" v-for="i in problemList" :key="i.id" @click="gotoDetail(i)">
 				<view class="problem-item__title">
 					<text class="tag" :class="[PROBLEM_LEVEL[i.difficulty].class]">{{ PROBLEM_LEVEL[i.difficulty].value }}</text>
 					<text class="text">{{ i.title }}</text>
@@ -53,7 +38,7 @@
 		<u-popup :show="show" :round="10" mode="bottom" class="filter-popup">
 			<view class="filter-box">
 				<view class="filter-header">
-					<text class="reset">重置</text>
+					<text class="reset" @click="resetFilter">重置</text>
 					<text class="title">筛选题目</text>
 					<text class="confirm" @click="confirmFilter">确定</text>
 				</view>
@@ -62,13 +47,10 @@
 						<view class="filter-item__title">题库类型</view>
 						<t-select :list="REMOTE_OJ" :active.sync="query.oj"></t-select>
 					</view>
-					<view class="filter-item">
-						<view class="filter-item__title">题目难度</view>
-						<t-select :list="PROBLEM_LEVEL_RESERVE" :active.sync="query.difficulty"></t-select>
-					</view>
+
 					<view class="filter-item">
 						<view class="filter-item__title">题目标签</view>
-						<t-select :list="tags" :active.sync="query.tagId" valName="name" keyName="id" ></t-select>
+						<t-select :list="tags" :active.sync="query.tagId" valName="name" keyName="id"></t-select>
 					</view>
 				</view>
 			</view>
@@ -108,13 +90,6 @@ export default {
 			this.show = true;
 			this.fetchTags();
 		},
-		setActive(v) {
-			this.active = v.id;
-		},
-		setMulActive(v) {
-			this.mulActive = v;
-			console.log(v);
-		},
 		handlePercentage(ac, all) {
 			const percentage = (ac / all) * 100;
 			if (Number.isNaN(percentage)) return '00.00';
@@ -131,11 +106,6 @@ export default {
 			const { data } = await this.$api({ url: 'get-all-problem-tags', method: 'get' });
 			this.tags = data;
 		},
-		confirmFilter() {
-			this.query.currentPage = 1;
-			this.fetchProblemList();
-			this.show = false;
-		},
 		async fetchProblemList() {
 			this.status = 'loading';
 			const { data } = await this.$api({
@@ -151,6 +121,40 @@ export default {
 				if (this.isFull) this.status = 'nomore';
 				else this.status = 'loadmore';
 			}
+		},
+		initLoad() {
+			this.problemList = [];
+			this.query.currentPage = 1;
+		},
+		changeTabs(i) {
+			this.initLoad();
+			this.query.difficulty = i.key;
+			this.fetchProblemList();
+		},
+		resetFilter() {
+			this.initLoad();
+			Object.assign(this.query, {
+				currentPage: 1,
+				limit: 15,
+				oj: 'All',
+				tagId: ''
+			});
+			this.show = false;
+			this.fetchProblemList();
+		},
+		confirmFilter() {
+			this.show = false;
+			this.initLoad();
+			this.fetchProblemList();
+		},
+		gotoDetail(i) {
+			console.log(i);
+			uni.navigateTo({
+				url: 'problemDetail',
+				fail: function(res) {
+					console.log(res);
+				}
+			});
 		}
 	},
 	onReachBottom() {
@@ -219,14 +223,14 @@ export default {
 			.tag {
 				display: inline-block;
 				background-color: #f5f5f7;
-				padding: 4rpx 8rpx;
+				padding: 6rpx 10rpx;
 				border-radius: 8rpx;
-				font-size: 28rpx;
+				font-size: 26rpx;
 				color: $uni-color-success;
-				&.medium {
+				&.Mid {
 					color: $uni-color-warning;
 				}
-				&.difficult {
+				&.Hard {
 					color: $uni-color-error;
 				}
 			}
