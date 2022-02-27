@@ -3,12 +3,12 @@
 		<view class="top-search">
 			<view class="search-box">
 				<u-icon name="search" size="22"></u-icon>
-				<text class="placeholder">搜索相关文章</text>
+				<text class="placeholder" @click="searchPage">搜索相关题目</text>
 			</view>
 		</view>
 		<view class="center-content">
 			<u-tabs class="problem-tabs" :list="PROBLEM_LEVEL_RESERVE" lineWidth="30" lineColor=" #4b55ff" keyName="value" @click="changeTabs">
-				<view slot="right" style="padding-left: 4px;" @tap="$u.toast('插槽被点击')"><u-icon name="list" size="21" bold @click="showPopup"></u-icon></view>
+				<view slot="right" style="padding-left: 4px;" ><u-icon name="list" size="21" bold @click="showPopup"></u-icon></view>
 			</u-tabs>
 		</view>
 		<view class="problem-list">
@@ -150,10 +150,12 @@ export default {
 		gotoDetail(i) {
 			console.log(i);
 			uni.navigateTo({
-				url: 'problemDetail',
-				fail: function(res) {
-					console.log(res);
-				}
+				url: 'problemDetail?id=' + i.problemId
+			});
+		},
+		searchPage() {
+			uni.navigateTo({
+				url: '/pages/search/searchProblem'
 			});
 		}
 	},
@@ -199,6 +201,7 @@ export default {
 .center-content {
 	background-color: #fff;
 	padding: 10rpx 20rpx;
+	box-sizing: border-box;
 	position: sticky;
 	top: 0;
 	width: 100%;
@@ -318,5 +321,7 @@ export default {
 			}
 		}
 	}
+}
+.t-empty {
 }
 </style>
