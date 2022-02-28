@@ -1,5 +1,7 @@
-@import url('//at.alicdn.com/t/font_3207542_7bc4c4rj4g9.css')
-
 * {
 	box-sizing: border-box;
+}
+
+.disabled-event {
+	pointer-events: none;
 }

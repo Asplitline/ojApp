@@ -20,11 +20,11 @@ export default {
 		}
 	},
 	data() {
-		return {};
+		return {}
 	}
-};
+}
 </script>
 
 <style lang="scss" scoped>
-@import url('//at.alicdn.com/t/font_3207542_g1fnudo8a18.css');
+@import url('//at.alicdn.com/t/font_3207542_xvafurj5l2.css');
 </style>
