@@ -57,3 +57,13 @@ export const PROBLEM_LEVEL_RESERVE = [{
 	key: 2,
 	value: '困难'
 }]
+
+
+export const REPORT_TAG = [
+	'垃圾广告',
+	'违法违规',
+	'色情低俗',
+	'赌博诈骗',
+	'恶意骂战',
+	'恶意抄袭',
+]
