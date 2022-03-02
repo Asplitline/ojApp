@@ -54,3 +54,18 @@ export function handleDate(date) {
 		return '刚刚'
 	}
 }
+
+
+export function isEmpty (v) {
+  const type = Object.prototype.toString.call(v).slice(8, -1).toLowerCase()
+  if (type === 'string' || type === 'array') {
+    return !v.length
+  }
+  else if (type === 'object') {
+    return !Object.keys(v).length
+  } else if (type === 'number') {
+    return !v
+  } else {
+    return !v
+  }
+}

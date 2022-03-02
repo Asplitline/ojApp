@@ -67,7 +67,7 @@
 						<t-icon type="icon-thumbs-o-up" class="bottom-tool__icon"></t-icon>
 						<text class="bottom-tool__num">{{ detail.likeNum }}</text>
 					</view>
-					<view class="bottom-tool">
+					<view class="bottom-tool" @click="showModal=true">
 						<t-icon type="icon-error" class="bottom-tool__icon" color="#cc2d19"></t-icon>
 						<text class="bottom-tool__num">举报</text>
 					</view>
@@ -92,7 +92,7 @@
 				</view>
 			</view>
 		</view>
-		<u-modal title="举报文章" :show="showModal" closeOnClickOverlay showCancelButton>
+		<u-modal title="举报文章" :show="showModal">
 			<u--form :borderBottom="false" labelPosition="top" :model="reportForm" :rules="rules" ref="form1" style="width:100%;" labelWidth="140px">
 				<u-form-item label="标签" prop="name" ref="item1">
 					<u-checkbox-group v-model="reportForm.tag" placement="column" @change="checkboxChange" class="report-checkbox-list">
@@ -101,7 +101,10 @@
 				</u-form-item>
 				<u-form-item label="举报原因" prop="name" ref="item1"><u--textarea v-model="reportForm.content" placeholder="请输入内容"></u--textarea></u-form-item>
 			</u--form>
-			<button slot="confirmButton" class="report-btn">举报</button>
+			<view slot="confirmButton" class="report-btns">
+				<button class="report-btn cancel" @click="cancelModal">取消</button>
+				<button class="report-btn" @click="confirmReport">举报</button>
+			</view>
 		</u-modal>
 	</view>
 </template>
@@ -121,7 +124,7 @@ export default {
 			},
 			commentList: [],
 			commentLikeMap: {},
-			showModal: true,
+			showModal: false,
 			reportForm: {},
 			rules: {},
 			REPORT_TAG
@@ -131,6 +134,12 @@ export default {
 		closeCommentBox() {
 			this.showComment = false;
 			this.comment = '';
+		},
+		cancelModal(){
+			this.showModal= false
+		},
+		confirmReport() {
+			console.log(111);
 		},
 		async fetchDiscussDetail() {
 			const { data } = await this.$api({
@@ -407,6 +416,17 @@ export default {
 		width: 50%;
 		padding: 20rpx 0;
 	}
-	
+}
+.report-btns {
+	display: flex;
+	.report-btn {
+		background-color: #ff4d47;
+		height: 64rpx;
+		line-height: 64rpx;
+		color: #fff;
+		&.cancel {
+			background-color:#666;
+		}
+	}
 }
 </style>

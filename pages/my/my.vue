@@ -43,6 +43,7 @@
 export default {
 	data() {
 		return {
+			isLogin: false,
 			list: [
 				{ text: '做题记录', id: 1, icon: 'coupon', color: '#1879fe' },
 				{ text: '我的资料', id: 2, icon: 'account', color: '#ff9d0d' },
@@ -51,6 +52,13 @@ export default {
 				{ text: '设置', id: 5, icon: 'setting', color: '#8d8d8d' }
 			]
 		};
+	},
+	onShow() {
+		if (this.isLogin === false) {
+			uni.navigateTo({
+				url: '/pages/login/login'
+			});
+		}
 	}
 };
 </script>
