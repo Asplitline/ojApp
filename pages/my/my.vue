@@ -2,12 +2,12 @@
 	<t-page class="info-page">
 		<view class="top-box">
 			<view class="top-box__left">
-				<image src="../../static/logo.png" mode="" class="avatar"></image>
+				<image :src="user.avatar ? `${$imgUrl}${user.avatar}` : '../../static/logo.png'" mode="" class="avatar"></image>
 				<view class="edit-box"><u-icon class="edit-icon" name="edit-pen-fill"></u-icon></view>
 			</view>
 			<view class="top-box__center">
-				<text class="title">1020.524</text>
-				<text class="desc">未填写</text>
+				<text class="title">{{ user.username }}</text>
+				<text class="desc">{{ user.signature || '未填写' }}</text>
 			</view>
 			<view class="top-box__right">
 				个人主页
@@ -17,15 +17,15 @@
 		<view class="bottom-box">
 			<view class="bottom-box__info">
 				<view class="info-card">
-					<text class="title">通过率</text>
-					<text class="text">
-						88.55
-						<text class="unit">%</text>
-					</text>
+					<text class="title cf">提交数</text>
+					<text class="text">{{ userInfo.solvedList ? userInfo.solvedList.length : 0 }}</text>
 				</view>
 				<view class="info-card">
-					<text class="title cf">Codeforces</text>
-					<text class="text">1355</text>
+					<text class="title">通过率</text>
+					<text class="text">
+						{{ percentage }}
+						<text class="unit">%</text>
+					</text>
 				</view>
 			</view>
 			<view class="bottom-box__list">
@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 export default {
 	data() {
 		return {
@@ -50,11 +51,40 @@ export default {
 				{ text: '修改密码', id: 3, icon: 'lock', color: '#0bb6a3' },
 				{ text: '邮箱修改', id: 4, icon: 'email', color: '#685dc5' },
 				{ text: '设置', id: 5, icon: 'setting', color: '#8d8d8d' }
-			]
+			],
+			userInfo: {}
 		};
 	},
+	methods: {
+		async fetchUserInfo() {
+			const { data } = await this.$api({
+				url: 'get-user-home-info',
+				method: 'get',
+				data: {
+					uid: this.user.uid
+				}
+			});
+			this.userInfo = data;
+			console.log(this.userInfo);
+			console.log(this.percentage);
+		}
+	},
+	computed: {
+		...mapState(['user']),
+		percentage() {
+			if (this.userInfo.solvedList) {
+				const v = (this.userInfo.solvedList.length / this.userInfo.total) * 100;
+				return v.toFixed(2);
+			} else {
+				return 0;
+			}
+		}
+	},
 	onShow() {
-		if (this.isLogin === false) {
+		const token = uni.getStorageSync('token');
+		if (token?.length > 0) {
+			this.fetchUserInfo();
+		} else {
 			uni.navigateTo({
 				url: '/pages/login/login'
 			});

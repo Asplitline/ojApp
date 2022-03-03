@@ -10,16 +10,22 @@ export default ({
 	method = "post",
 	url,
 	data,
-	header
+	header = {},
+	all = false
 }) => {
 	return new Promise((resolve, reject) => {
+		// const 
+		const token = uni.getStorageSync('token')
+		token && Object.assign(header, {
+			Authorization: token
+		})
 		uni.request({
 			method,
 			url: apiUrl + url,
 			data,
 			header,
 			success(res) {
-				resolve(res.data)
+				all ? resolve(res) : resolve(res.data)
 			},
 			fail(error) {
 				reject(error)

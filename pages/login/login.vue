@@ -5,9 +5,9 @@
 		<view class="entry-box" v-if="active === 'login'">
 			<view class="top-banner">登录你的用户吧</view>
 			<view class="entry-form">
-				<u-input type="text" placeholder="用户名" class="entry-ipt" v-model="login.username" />
-				<u-input type="password" placeholder="密码" class="entry-ipt" v-model="login.password" />
-				<button class="entry-btn">登录</button>
+				<u-input type="text" placeholder="用户名" class="entry-ipt" v-model="loginForm.username" />
+				<u-input type="password" placeholder="密码" class="entry-ipt" v-model="loginForm.password" />
+				<button class="entry-btn" @click="login">登录</button>
 				<view class="entry-link">
 					<text class="forget link" @click="setActive('forget')">忘记密码?</text>
 					<text class="register link" @click="setActive('register')">注册账号</text>
@@ -17,8 +17,8 @@
 		<view class="entry-box" v-else-if="active === 'forget'">
 			<view class="top-banner">重置密码</view>
 			<view class="entry-form">
-				<u-input type="text" placeholder="电子邮箱" class="entry-ipt" />
-				<u-input type="password" placeholder="验证码" class="entry-ipt" />
+				<u-input type="text" placeholder="电子邮箱" class="entry-ipt" v-model="resetForm.email" />
+				<u-input type="password" placeholder="验证码" class="entry-ipt" v-model="resetForm.code" />
 				<button class="entry-btn">获取验证码</button>
 				<view class="entry-link" @click="setActive('login')"><text class="back link" @click="setActive('forget')">返回</text></view>
 			</view>
@@ -26,12 +26,15 @@
 		<view class="entry-box" v-else-if="active === 'register'">
 			<view class="top-banner">注册账号</view>
 			<view class="entry-form">
-				<u-input type="text" placeholder="用户名" class="entry-ipt" />
-				<u-input type="text" placeholder="用户密码" class="entry-ipt" />
-				<u-input type="text" placeholder="再次输入密码" class="entry-ipt" />
-				<u-input type="text" placeholder="电子邮箱" class="entry-ipt" />
-				<u-input type="password" placeholder="验证码" class="entry-ipt" />
-				<button class="entry-btn">获取验证码</button>
+				<u-input type="text" placeholder="用户名" class="entry-ipt" v-model="registerForm.username" />
+				<u-input type="password" placeholder="用户密码" class="entry-ipt" v-model="registerForm.password" />
+				<u-input type="password" placeholder="再次输入密码" class="entry-ipt" v-model="registerForm.confirmPassword" />
+				<view class="entry-form-item">
+					<u-input type="text" placeholder="电子邮箱" class="entry-ipt" v-model="registerForm.email" />
+					<text class="check-code" @click="getCheckCode" :class="{ 'disabled-event': isClick }">{{ isClick ? timer + 's' : '获取验证码' }}</text>
+				</view>
+				<u-input type="password" placeholder="验证码" class="entry-ipt" v-model="registerForm.code" />
+				<button class="entry-btn">注册</button>
 				<view class="entry-link" @click="setActive('login')"><text class="back link" @click="setActive('forget')">返回</text></view>
 			</view>
 		</view>
@@ -39,28 +42,96 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
 export default {
 	data() {
 		return {
 			active: 'login',
-			code: ''
+			code: '',
+			loginForm: {},
+			resetForm: {},
+			registerForm: {},
+			isClick: false,
+			timer: 60
 		};
 	},
 	methods: {
+		...mapMutations(['setUser']),
 		back() {
-			uni.navigateBack({
-				delta: 1
+			uni.switchTab({
+				url: '/pages/my/my'
 			});
 		},
 		setActive(active) {
 			console.log(active);
 			this.active = active;
 		},
-		showToast(message){
-			this.$refs.uToast.show({message})
+		showToast(message) {
+			this.$refs.uToast.show({ message });
 		},
-		login() {
-			if(this.$utils.isEmpty()){}
+		validateEmail(v) {
+			const reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			if (v == null || v.trim().length === 0) {
+				this.showToast('邮箱不能为空');
+			} else if (reg.test(v)) {
+				return true;
+			} else {
+				this.showToast('邮箱格式错误');
+				return false;
+			}
+		},
+		async getCheckCode() {
+			if (!this.validateEmail(this.registerForm.email)) return;
+			const { msg, status } = await this.$api({
+				url: 'get-register-code',
+				method: 'get',
+				data: {
+					email: this.registerForm.email
+				}
+			});
+			this.showToast(msg);
+			if (status === 200) {
+				this.isClick = true;
+				this.startTime();
+			}
+		},
+		startTime() {
+			const timerId = setInterval(() => {
+				this.timer--;
+				if (this.timer === 0) {
+					clearInterval(timerId);
+					this.timer = 60;
+					this.isClick = false;
+				}
+			}, 1000);
+		},
+		async validateEmailAndUsername() {
+			const res = await this.$api({
+				url: 'check-username-or-email',
+				data: {
+					username: this.registerForm.username,
+					email: this.registerForm.email
+				}
+			});
+			console.log(res);
+		},
+		async login() {
+			if (this.$utils.isEmpty(this.loginForm.username)) {
+				return this.showToast('用户名不能为空');
+			}
+			if (this.$utils.isEmpty(this.loginForm.password)) {
+				return this.showToast('密码不能为空');
+			}
+			const {
+				data: { status, msg, data },
+				header: { authorization }
+			} = await this.$api({ url: 'login', data: this.loginForm, all: true });
+			status === 400 && this.showToast(msg);
+			if (status === 200) {
+				this.setUser(data);
+				uni.setStorageSync('token', authorization);
+				this.back();
+			}
 			// if()
 		}
 	}
@@ -94,6 +165,16 @@ export default {
 		}
 		.entry-form {
 			padding: 20rpx 0;
+			.entry-form-item {
+				position: relative;
+				.check-code {
+					position: absolute;
+					top: 50%;
+					right: 40rpx;
+					transform: translateY(-50%);
+					color: $uni-color-primary;
+				}
+			}
 			.entry-ipt {
 				padding: 16rpx 30rpx !important;
 				background-color: #fafafa;
