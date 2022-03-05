@@ -36,7 +36,8 @@
 						<view class="comment-item__bd">{{ i.content }}</view>
 						<view class="comment-item__ft">
 							<view class="comment-item__ft--texts">
-								<text class="text">
+								<text class="text" @click="commentLike(i)"
+									:class="{ 'is-like': i.isLike }">
 									点赞
 									<text class="num">{{ i.likeNum }}</text>
 								</text>
@@ -48,7 +49,8 @@
 							</view>
 							<view class="comment-item__ft--icons">
 								<t-icon type="icon-thumbs-o-up" color="#777" class="icon"></t-icon>
-								<t-icon type="icon-comments" color="#777" class="icon"></t-icon>
+								<t-icon type="icon-comments" color="#777" class="icon"
+									@click.native="commentReply(i)"></t-icon>
 							</view>
 						</view>
 
@@ -56,6 +58,12 @@
 							<view class="reply-item" v-for="reply in i.replyList" :key="reply.id">
 								<text class="name">{{ reply.fromName }} :</text>
 								<text class="content">{{ reply.content }}</text>
+							</view>
+							<view>
+								<text class="reply-total">共 {{i.totalReplyNum}} 条回复</text>
+								<text v-if="i.replyList.length<i.totalReplyNum" class="reply-all"
+									@click="showAllReply(i.id)">查看全部
+								</text>
 							</view>
 						</view>
 					</view>
@@ -67,7 +75,7 @@
 						<t-icon type="icon-thumbs-o-up" class="bottom-tool__icon"></t-icon>
 						<text class="bottom-tool__num">{{ detail.likeNum }}</text>
 					</view>
-					<view class="bottom-tool" @click="showModal=true">
+					<view class="bottom-tool" @click="showModal = true">
 						<t-icon type="icon-error" class="bottom-tool__icon" color="#cc2d19"></t-icon>
 						<text class="bottom-tool__num">举报</text>
 					</view>
@@ -75,16 +83,20 @@
 						<t-icon type="icon-share" class="bottom-tool__icon" color="#75c82b"></t-icon>
 						<text class="bottom-tool__num">分享</text>
 					</view>
-					<view class="bottom-input" @click="showComment = true" v-if="false">说点什么把....</view>
+					<view class="bottom-input" @click="showComment = true" v-if="isLogin">
+						说点什么把....
+					</view>
 					<view class="bottom-input" v-else>登陆后可以评论</view>
 				</view>
-				<view class="comment-box" @click.self="closeCommentBox" v-else>
+				<view class="comment-box" @click.self="closeCommentBox" @touchmove.native.prevent
+					v-else>
 					<view class="comment-ipt">
 						<u--textarea v-model="comment" placeholder="请输入内容"></u--textarea>
 						<view class="comment-tool">
-							<image :src="`${$imgUrl}${detail.avatar}`" class="avatar"></image>
-							<u-button class="send-btn">
-								<t-icon type="icon-send" color="#fff" fontSize="16" class="send-btn-icon"></t-icon>
+							<image :src="`${$imgUrl}${user.avatar}`" class="avatar"></image>
+							<u-button class="send-btn" @click="submitComment">
+								<t-icon type="icon-send" color="#fff" fontSize="16" class="send-btn-icon">
+								</t-icon>
 								发送
 							</u-button>
 						</view>
@@ -93,24 +105,31 @@
 			</view>
 		</view>
 		<u-modal title="举报文章" :show="showModal">
-			<u--form :borderBottom="false" labelPosition="top" :model="reportForm" :rules="rules" ref="form1" style="width:100%;" labelWidth="140px">
+			<u--form :borderBottom="false" labelPosition="top" :model="reportForm"
+				:rules="rules" ref="form1" style="width:100%;" labelWidth="140px">
 				<u-form-item label="标签" prop="name" ref="item1">
-					<u-checkbox-group v-model="reportForm.tag" placement="column" @change="checkboxChange" class="report-checkbox-list">
-						<u-checkbox v-for="(item, index) in REPORT_TAG" :key="index" :label="item" :name="item" class="report-checkbox-item"></u-checkbox>
+					<u-checkbox-group v-model="reportForm.tag" placement="column"
+						@change="checkboxChange" class="report-checkbox-list">
+						<u-checkbox v-for="(item, index) in REPORT_TAG" :key="index" :label="item"
+							:name="item" class="report-checkbox-item"></u-checkbox>
 					</u-checkbox-group>
 				</u-form-item>
-				<u-form-item label="举报原因" prop="name" ref="item1"><u--textarea v-model="reportForm.content" placeholder="请输入内容"></u--textarea></u-form-item>
+				<u-form-item label="举报原因" prop="name" ref="item1">
+					<u--textarea v-model="reportForm.content" placeholder="请输入内容"></u--textarea>
+				</u-form-item>
 			</u--form>
 			<view slot="confirmButton" class="report-btns">
 				<button class="report-btn cancel" @click="cancelModal">取消</button>
 				<button class="report-btn" @click="confirmReport">举报</button>
 			</view>
 		</u-modal>
+		<u-toast ref="uToast"></u-toast>
 	</view>
 </template>
 
 <script>
-import { REPORT_TAG } from '@/utils/static';
+import { REPORT_TAG } from '@/utils/static'
+import { mapGetters, mapState } from 'vuex'
 export default {
 	data() {
 		return {
@@ -123,23 +142,117 @@ export default {
 				limit: 55
 			},
 			commentList: [],
-			commentLikeMap: {},
 			showModal: false,
 			reportForm: {},
 			rules: {},
-			REPORT_TAG
-		};
+			REPORT_TAG,
+			currentComment: {},
+			commentType: 'comment'
+		}
+	},
+	computed: {
+		...mapGetters(['isLogin']),
+		...mapState(['user'])
 	},
 	methods: {
-		closeCommentBox() {
-			this.showComment = false;
-			this.comment = '';
+		async commentLike(item) {
+			const { status } = await this.$api({
+				url: 'comment-like',
+				method: 'get',
+				data: {
+					cid: item.id,
+					toLike: !item.isLike,
+					sourceId: this.id,
+					sourceType: 'Discussion'
+				}
+			})
+			if (status === 200) this.fetchCommentList()
 		},
-		cancelModal(){
-			this.showModal= false
+		showToast(message) {
+			this.$refs.uToast.show({ message })
+		},
+		async commentReply(item) {
+			this.currentComment = item
+			this.showComment = true
+			this.commentType = 'reply'
+		},
+		async submitComment() {
+			if (this.$utils.isEmpty(this.comment)) return this.showToast('请输入内容')
+			if (this.commentType === 'reply') {
+				const { status } = await this.$api({
+					url: 'reply',
+					data: {
+						did: this.id,
+						quoteId: this.currentComment.id,
+						quoteType: 'Comment',
+						reply: {
+							commentId: this.currentComment.id,
+							content: this.comment,
+							toAvatar: this.currentComment.fromAvatar,
+							toUid: this.currentComment.fromUid,
+							toName: this.currentComment.fromName
+						}
+					}
+				})
+				this.$handleStatus(
+					status,
+					() => {
+						this.showComment = false
+						this.commentType = 'comment'
+						this.currentComment = {}
+						this.comment = ''
+						this.fetchCommentList()
+					},
+					() => {
+						this.showToast(msg)
+					}
+				)
+			} else if (this.commentType === 'comment') {
+				const { status, msg } = await this.$api({
+					url: 'comment',
+					data: { cid: null, content: this.content, did: this.id }
+				})
+				this.$handleStatus(
+					status,
+					() => {
+						this.fetchCommentList()
+					},
+					() => {
+						this.showToast(msg)
+					}
+				)
+			}
+		},
+		async showAllReply(id) {
+			const { data, status } = await this.$api({
+				url: 'reply',
+				method: 'get',
+				data: {
+					commentId: id
+				}
+			})
+			if (status === 200) {
+				this.commentList = this.commentList.map((i) => {
+					if (i.id === id) {
+						return {
+							...i,
+							replyList: data
+						}
+					} else {
+						return { ...i }
+					}
+				})
+			}
+		},
+		closeCommentBox() {
+			this.showComment = false
+			this.comment = ''
+		},
+		cancelModal() {
+			this.showModal = false
 		},
 		confirmReport() {
-			console.log(111);
+			console.log(111)
 		},
 		async fetchDiscussDetail() {
 			const { data } = await this.$api({
@@ -148,9 +261,9 @@ export default {
 				data: {
 					did: this.id
 				}
-			});
-			console.log(data);
-			this.detail = data;
+			})
+			console.log(data)
+			this.detail = data
 		},
 
 		async fetchCommentList() {
@@ -161,19 +274,23 @@ export default {
 					did: this.id,
 					...this.query
 				}
-			});
-			this.commentLikeMap = data.commentLikeMap;
-			this.commentList = data.commentList.records;
+			})
+			this.commentList = data.commentList.records.map((i) => {
+				const isLike = !!data.commentLikeMap[i.id]
+				return { ...i, isLike }
+			})
+			console.log(this.commentList)
 		}
 	},
 	onLoad({ id }) {
-		this.id = id;
+		this.id = id
 	},
 	onShow() {
-		this.fetchDiscussDetail();
-		this.fetchCommentList();
+		console.log(this.user)
+		this.fetchDiscussDetail()
+		this.fetchCommentList()
 	}
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -275,6 +392,9 @@ export default {
 						.text {
 							margin: 0 20rpx;
 							color: #777;
+							&.is-like {
+								color: $uni-color-primary;
+							}
 							.num {
 								margin-left: 14rpx;
 								font-size: 26rpx;
@@ -325,6 +445,16 @@ export default {
 						}
 					}
 				}
+				.reply-total {
+					font-size: 26rpx;
+					color: #666;
+					line-height: 1.5;
+				}
+				.reply-all {
+					color: $uni-color-primary;
+					font-size: 28rpx;
+					margin-left: 6rpx;
+				}
 			}
 		}
 	}
@@ -365,7 +495,7 @@ export default {
 	}
 }
 .comment-box {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	bottom: 0;
 	left: 0;
@@ -425,7 +555,7 @@ export default {
 		line-height: 64rpx;
 		color: #fff;
 		&.cancel {
-			background-color:#666;
+			background-color: #666;
 		}
 	}
 }

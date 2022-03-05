@@ -28,13 +28,13 @@
 			<view class="entry-form">
 				<u-input type="text" placeholder="用户名" class="entry-ipt" v-model="registerForm.username" />
 				<u-input type="password" placeholder="用户密码" class="entry-ipt" v-model="registerForm.password" />
-				<u-input type="password" placeholder="再次输入密码" class="entry-ipt" v-model="registerForm.confirmPassword" />
+				<u-input type="password" placeholder="再次输入密码" class="entry-ipt" v-model="registerForm.passwordAgain" />
 				<view class="entry-form-item">
 					<u-input type="text" placeholder="电子邮箱" class="entry-ipt" v-model="registerForm.email" />
 					<text class="check-code" @click="getCheckCode" :class="{ 'disabled-event': isClick }">{{ isClick ? timer + 's' : '获取验证码' }}</text>
 				</view>
 				<u-input type="password" placeholder="验证码" class="entry-ipt" v-model="registerForm.code" />
-				<button class="entry-btn">注册</button>
+				<button class="entry-btn" @click="handleRegister">注册</button>
 				<view class="entry-link" @click="setActive('login')"><text class="back link" @click="setActive('forget')">返回</text></view>
 			</view>
 		</view>
@@ -56,7 +56,7 @@ export default {
 		};
 	},
 	methods: {
-		...mapMutations(['setUser']),
+		...mapMutations(['setUser', 'setToken']),
 		back() {
 			uni.switchTab({
 				url: '/pages/my/my'
@@ -122,6 +122,7 @@ export default {
 			if (this.$utils.isEmpty(this.loginForm.password)) {
 				return this.showToast('密码不能为空');
 			}
+
 			const {
 				data: { status, msg, data },
 				header: { authorization }
@@ -129,10 +130,40 @@ export default {
 			status === 400 && this.showToast(msg);
 			if (status === 200) {
 				this.setUser(data);
-				uni.setStorageSync('token', authorization);
+				this.setToken(authorization)
 				this.back();
 			}
 			// if()
+		},
+		async handleRegister() {
+			if (this.$utils.isEmpty(this.registerForm.username)) {
+				return this.showToast('用户名不能为空');
+			}
+			if (this.$utils.isEmpty(this.registerForm.password)) {
+				return this.showToast('密码不能为空');
+			}
+			if (this.$utils.isEmpty(this.registerForm.passwordAgain)) {
+				return this.showToast('请再次输入密码');
+			}
+			if (this.registerForm.password.length < 6 || this.registerForm.password.length > 20) {
+				return this.showToast('密码长度应该为6~20位！');
+			}
+			if (this.registerForm.passwordAgain !== this.registerForm.password) {
+				return this.showToast('两次密码不一致');
+			}
+			if (!this.validateEmail(this.registerForm.email)) {
+				return;
+			}
+			if (this.$utils.isEmpty(this.registerForm.code)) {
+				return this.showToast('请输入验证码');
+			}
+			const { status, msg } = await this.$api({ url: 'register', method: 'post', data: this.registerForm });
+			if (status === 200) {
+				this.showToast('注册成功');
+				this.setActive('login');
+			} else {
+				this.showToast(msg);
+			}
 		}
 	}
 };

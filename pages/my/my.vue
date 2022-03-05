@@ -74,7 +74,7 @@ export default {
 		percentage() {
 			if (this.userInfo.solvedList) {
 				const v = (this.userInfo.solvedList.length / this.userInfo.total) * 100;
-				return v.toFixed(2);
+				return Number.isNaN(v) ? 0 : v.toFixed(2);
 			} else {
 				return 0;
 			}

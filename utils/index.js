@@ -1,4 +1,4 @@
-export function exampleStr2Arr(str = '') {
+export function exampleStr2Arr (str = '') {
 	const arr = []
 	const reg = /<input>([\s\S]*?)<\/input><output>([\s\S]*?)<\/output>/g
 	let res = reg.exec(str)
@@ -14,11 +14,11 @@ export function exampleStr2Arr(str = '') {
 	return arr
 }
 
-export function handleDate(date) {
+export function handleDate (date) {
 	const val = new Date(date).getTime()
 	const now = Date.now()
 	const diff = now - val
-	if(diff < 0 ) return '未知'
+	if (diff < 0) return '未知'
 	const second = 1000
 	const min = 60 * second
 	const hour = 60 * min
@@ -50,22 +50,31 @@ export function handleDate(date) {
 		return `${end.min}分钟前`
 	} else if (end.second) {
 		return `${end.second}秒前`
-	}else {
+	} else {
 		return '刚刚'
 	}
 }
 
 
 export function isEmpty (v) {
-  const type = Object.prototype.toString.call(v).slice(8, -1).toLowerCase()
-  if (type === 'string' || type === 'array') {
-    return !v.length
-  }
-  else if (type === 'object') {
-    return !Object.keys(v).length
-  } else if (type === 'number') {
-    return !v
-  } else {
-    return !v
-  }
+	const type = Object.prototype.toString.call(v).slice(8, -1).toLowerCase()
+	if (type === 'string' || type === 'array') {
+		return !v.length
+	}
+	else if (type === 'object') {
+		return !Object.keys(v).length
+	} else if (type === 'number') {
+		return !v
+	} else {
+		return !v
+	}
+}
+
+export function handleStatus (status, callback, errorCallback) {
+	if (status === 200) {
+		callback && callback()
+		callback()
+	} else {
+		errorCallback && errorCallback()
+	}
 }
