@@ -5,3 +5,15 @@
 .disabled-event {
 	pointer-events: none;
 }
+
+.avatar-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 70rpx;
+	height: 70rpx;
+	border-radius: 50%;
+	background-color: #4b55ff;
+	font-size: 36rpx;
+	color: #fff;
+}

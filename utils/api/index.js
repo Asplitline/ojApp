@@ -25,9 +25,13 @@ export default ({
 			data,
 			header,
 			success(res) {
+				if (res.data.status === 401) {
+					uni.removeStorageSync('token')
+				}
 				all ? resolve(res) : resolve(res.data)
 			},
 			fail(error) {
+				console.log(error);
 				reject(error)
 			},
 			complete() {

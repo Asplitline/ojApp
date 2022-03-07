@@ -13,6 +13,10 @@ myPlugin.install = (Vue) => {
 	Vue.filter('handleDate', v => {
 		return utils.handleDate(v)
 	})
+	
+	Vue.filter('firstName', v => {
+		return v.slice(0, 1)
+	})
 }
 
 export default myPlugin
