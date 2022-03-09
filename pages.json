@@ -33,8 +33,15 @@
 				"navigationStyle": "custom"
 			}
 
-		}, {
+		},
+		{
 			"path": "pages/search/searchProblem",
+			"style": {
+				"navigationStyle": "custom"
+			}
+
+		}, {
+			"path": "pages/search/searchDiscuss",
 			"style": {
 				"navigationStyle": "custom"
 			}

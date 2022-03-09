@@ -37,7 +37,7 @@
 						<view class="comment-item__bd">{{ i.content }}</view>
 						<view class="comment-item__ft">
 							<view class="comment-item__ft--texts">
-								<text class="text" @click="commentLike(i)" :class="{ 'is-like': i.isLike }">
+								<text class="text">
 									点赞
 									<text class="num">{{ i.likeNum }}</text>
 								</text>
@@ -48,7 +48,7 @@
 								</text>
 							</view>
 							<view class="comment-item__ft--icons">
-								<t-icon type="icon-thumbs-o-up" color="#777" class="icon"></t-icon>
+								<t-icon type="icon-thumbs-o-up" color="#777" class="icon" :class="{ 'is-like': i.isLike }" @click.native="commentLike(i)"></t-icon>
 								<t-icon type="icon-comments" color="#777" class="icon" @click.native="commentReply(i)"></t-icon>
 							</view>
 						</view>
@@ -76,10 +76,10 @@
 						<t-icon type="icon-error" class="bottom-tool__icon" color="#cc2d19"></t-icon>
 						<text class="bottom-tool__num">举报</text>
 					</view>
-					<view class="bottom-tool">
+		<!-- 			<view class="bottom-tool">
 						<t-icon type="icon-share" class="bottom-tool__icon" color="#75c82b"></t-icon>
-						<text class="bottom-tool__num">分享</text>
-					</view>
+						<text class="bottom-tool__num" @click="shareLink">分享</text>
+					</view> -->
 					<view class="bottom-input" @click="showComment = true" v-if="isLogin">说点什么把....</view>
 					<view class="bottom-input" v-else>登陆后可以评论</view>
 				</view>
@@ -98,13 +98,13 @@
 			</view>
 		</view>
 		<u-modal title="举报文章" :show="showModal">
-			<u--form :borderBottom="false" labelPosition="top" :model="reportForm" :rules="rules" ref="form1" style="width:100%;" labelWidth="140px">
-				<u-form-item label="标签" prop="name" ref="item1">
-					<u-checkbox-group v-model="reportForm.tag" placement="column" @change="checkboxChange" class="report-checkbox-list">
+			<u--form :borderBottom="false" labelPosition="top" :model="reportForm" :rules="rules" ref="reportRef" style="width:100%;" labelWidth="140px">
+				<u-form-item label="标签" prop="tag">
+					<u-checkbox-group v-model="reportForm.tag" placement="column" class="report-checkbox-list">
 						<u-checkbox v-for="(item, index) in REPORT_TAG" :key="index" :label="item" :name="item" class="report-checkbox-item"></u-checkbox>
 					</u-checkbox-group>
 				</u-form-item>
-				<u-form-item label="举报原因" prop="name" ref="item1"><u--textarea v-model="reportForm.content" placeholder="请输入内容"></u--textarea></u-form-item>
+				<u-form-item label="举报原因" prop="content"><u--textarea v-model="reportForm.content" placeholder="请输入内容"></u--textarea></u-form-item>
 			</u--form>
 			<view slot="confirmButton" class="report-btns">
 				<button class="report-btn cancel" @click="cancelModal">取消</button>
@@ -131,8 +131,28 @@ export default {
 			},
 			commentList: [],
 			showModal: false,
-			reportForm: {},
-			rules: {},
+			reportForm: {
+				tag: [],
+				content: ''
+			},
+			rules: {
+				tag: [
+					{
+						type: 'array',
+						required: true,
+						message: '请选择举报标签',
+						trigger: 'blur'
+					}
+				],
+				content: [
+					{
+						type: 'string',
+						required: true,
+						message: '请输入举报内容',
+						trigger: 'blur'
+					}
+				]
+			},
 			REPORT_TAG,
 			currentComment: {},
 			commentType: 'comment'
@@ -238,9 +258,33 @@ export default {
 		},
 		cancelModal() {
 			this.showModal = false;
+			this.$refs.reportRef.resetFields();
 		},
 		confirmReport() {
-			console.log(111);
+			this.$refs.reportRef
+				.validate()
+				.then(async res => {
+					let reportMsg = '';
+					for (let i = 0; i < this.reportForm.tag.length; i++) {
+						reportMsg += '#' + this.reportForm.tag[i] + '# ';
+					}
+					reportMsg += this.reportForm.content;
+
+					const { status, msg } = await this.$api({
+						url: 'discussion-report',
+						method: 'post',
+						data: {
+							reporter: this.user.username,
+							content: reportMsg,
+							did: this.id
+						}
+					});
+					status === 200 && this.cancelModal();
+					this.showToast(msg);
+				})
+				.catch(errors => {
+					console.log(errors);
+				});
 		},
 		async fetchDiscussDetail() {
 			const { data } = await this.$api({
@@ -250,7 +294,6 @@ export default {
 					did: this.id
 				}
 			});
-			console.log(data);
 			this.detail = data;
 		},
 		async fetchCommentList() {
@@ -262,19 +305,25 @@ export default {
 					...this.query
 				}
 			});
-			this.commentList = data.commentList.records.map(i => {
-				const isLike = !!data.commentLikeMap[i.id];
-				return { ...i, isLike };
-			});
-			console.log(this.commentList);
+			this.commentList = data.commentList.records
+				.map(i => {
+					const isLike = !!data.commentLikeMap[i.id];
+					return { ...i, isLike };
+				})
+				.sort((a, b) => {
+					return b.id - a.id;
+				});
 		},
 		async discussLike() {
 			const { status } = await this.$api({ url: 'discussion-like', method: 'get', data: { did: this.id, toLike: !this.detail.hasLike } });
 			this.fetchDiscussDetail();
-			// this.$handleStatus(status, () => {
-			// 	this
-			// });
-		}
+		},
+		// shareLink() {
+		// 	let pages = getCurrentPages();
+		// 	let route = pages[pages.length - 1].route;
+		// 	console.log(route);
+		// 	// uni.setClipboardData({});
+		// }
 	},
 	onLoad({ id }) {
 		this.id = id;
@@ -386,9 +435,7 @@ export default {
 						.text {
 							margin: 0 20rpx;
 							color: #777;
-							&.is-like {
-								color: $uni-color-primary;
-							}
+
 							.num {
 								margin-left: 14rpx;
 								font-size: 26rpx;
@@ -401,6 +448,9 @@ export default {
 					&--icons {
 						display: flex;
 						flex: 1;
+						.is-like {
+							color: $uni-color-primary !important;
+						}
 						.icon {
 							width: 50%;
 							text-align: center;
@@ -558,6 +608,7 @@ export default {
 		height: 64rpx;
 		line-height: 64rpx;
 		color: #fff;
+		font-size: 28rpx;
 		&.cancel {
 			background-color: #666;
 		}

@@ -1,13 +1,10 @@
 <template>
-	<t-page class="discuss-page">
-		<view class="top-search">
-			<view class="search-box">
-				<u-icon name="search" size="22"></u-icon>
-				<text class="placeholder" @click="searchPage">搜索相关文章</text>
-			</view>
+	<t-page class="search-page">
+		<view class="search-box">
+			<u-search v-model="query.keyword" :showAction="false" height="40" @search="enterSearch" @clear="clear"></u-search>
+			<text class="cancel-text" @click="cancel">取消</text>
 		</view>
-		<view class="center-tabs"><u-tabs :list="category" @click="setActive"></u-tabs></view>
-		<view class="discuss-list">
+		<view class="discuss-list" v-if="query.keyword">
 			<template v-if="total > 0">
 				<view class="discuss-item" v-for="i in discussList" :key="i.id" @click="gotoDetail(i)">
 					<view class="discuss-item-header">
@@ -49,33 +46,39 @@
 export default {
 	data() {
 		return {
-			category: [],
 			query: {
-				currentPage: 1,
-				limit: 15,
+				limit: 8,
 				keyword: '',
-				cid: null
+				currentPage: 1,
+				onlyMine: false
 			},
-			total: 10,
-			discussList: [],
-			status: 'loadmore'
+			status: 'loadmore',
+			total: 8,
+			discussList: []
 		};
 	},
-	filters: {
-		firstName(v) {
-			return v.author.slice(0, 1);
-		}
-	},
 	methods: {
-		async fetchCategory() {
-			const { data } = await this.$api({ url: 'discussion-category', method: 'get' });
-			data.unshift({
-				id: 0,
-				name: '全部'
-			});
-			this.category = data;
+		clear() {
+			this.discussList = [];
 		},
-		async fetchDisscus() {
+		loadData() {
+			if (this.isFull) return;
+			else {
+				this.query.currentPage++;
+				this.fetchData();
+			}
+		},
+		cancel() {
+			uni.switchTab({
+				url: '/pages/discuss/discuss'
+			});
+		},
+		enterSearch() {
+			this.discussList = [];
+			this.query.currentPage = 1;
+			this.fetchData();
+		},
+		async fetchData() {
 			this.status = 'loading';
 			const { data } = await this.$api({ url: 'discussions', method: 'get', data: this.query });
 			this.total = data.total;
@@ -87,27 +90,9 @@ export default {
 				else this.status = 'loadmore';
 			}
 		},
-		setActive(v) {
-			this.query.cid = v.id === 0 ? '' : v.id;
-			this.query.currentPage = 1;
-			this.discussList = [];
-			this.fetchDisscus();
-		},
-		loadData() {
-			if (this.isFull) return;
-			else {
-				this.query.currentPage++;
-				this.fetchDisscus();
-			}
-		},
 		gotoDetail(i) {
 			uni.navigateTo({
 				url: '/pages/discuss/discussDetail?id=' + i.id
-			});
-		},
-		searchPage() {
-			uni.navigateTo({
-				url: '/pages/search/searchDiscuss'
 			});
 		}
 	},
@@ -117,45 +102,26 @@ export default {
 		}
 	},
 	onShow() {
-		this.fetchCategory();
-		this.fetchDisscus();
+		// this.fetchData();
 	}
 };
 </script>
 
 <style lang="scss" scoped>
-.discuss-page {
+.search-page {
 	padding: 0;
-	background-color: #fff;
-	overflow-y: scroll;
 }
-.top-search {
-	padding: 20rpx 60rpx;
-
-	.search-box {
-		display: flex;
-		padding: 0 40rpx;
-		background-color: #f1f2f6;
-		border-radius: 36rpx;
-		justify-content: center;
-		align-items: center;
-		height: 72rpx;
-		.placeholder {
-			color: #777;
-			font-size: 30rpx;
-			margin-left: 4rpx;
-		}
+.search-box {
+	padding: 40rpx 30rpx;
+	background-color: #fff;
+	border-bottom: 2rpx solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	.cancel-text {
+		display: inline-block;
+		margin-left: 20rpx;
+		color: #666;
 	}
-}
-.center-tabs {
-	position: sticky;
-	top: 0;
-	left: 0;
-	right: 0;
-	width: 100%;
-	background-color: #fff;
-	z-index: 999;
-	border-bottom: 1rpx solid #f0f0f0;
 }
 .discuss-list {
 	padding: 20rpx 0;
