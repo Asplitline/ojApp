@@ -9,7 +9,7 @@
 				<text class="title">{{ user.username }}</text>
 				<text class="desc">{{ user.signature || '未填写' }}</text>
 			</view>
-			<view class="top-box__right">
+			<view class="top-box__right" @click="goto('/pages/my/infoCenter')">
 				个人主页
 				<u-icon name="arrow-right"></u-icon>
 			</view>
@@ -29,7 +29,7 @@
 				</view>
 			</view>
 			<view class="bottom-box__list">
-				<view class="bottom-box__item" v-for="i in list" :key="i.id">
+				<view class="bottom-box__item" v-for="i in list" :key="i.id" @click="goto(i.url)">
 					<u-icon class="item-icom" :name="i.icon" :size="26" :color="i.color"></u-icon>
 					<text class="item-title">{{ i.text }}</text>
 					<u-icon class="item-arrorw" name="arrow-right"></u-icon>
@@ -46,11 +46,11 @@ export default {
 		return {
 			isLogin: false,
 			list: [
-				{ text: '做题记录', id: 1, icon: 'coupon', color: '#1879fe' },
-				{ text: '我的资料', id: 2, icon: 'account', color: '#ff9d0d' },
-				{ text: '修改密码', id: 3, icon: 'lock', color: '#0bb6a3' },
-				{ text: '邮箱修改', id: 4, icon: 'email', color: '#685dc5' },
-				{ text: '设置', id: 5, icon: 'setting', color: '#8d8d8d' }
+				{ text: '做题记录', id: 1, icon: 'coupon', color: '#1879fe', url: '/pages/my/problemRecord' },
+				{ text: '我的资料', id: 2, icon: 'account', color: '#ff9d0d', url: '/pages/my/myInfo' },
+				{ text: '修改密码', id: 3, icon: 'lock', color: '#0bb6a3', url: '/pages/my/modifyPassword' },
+				{ text: '邮箱修改', id: 4, icon: 'email', color: '#685dc5', url: '/pages/my/modifyEmail' }
+				// { text: '设置', id: 5, icon: 'setting', color: '#8d8d8d', url: '' }
 			],
 			userInfo: {}
 		};
@@ -67,6 +67,11 @@ export default {
 			this.userInfo = data;
 			console.log(this.userInfo);
 			console.log(this.percentage);
+		},
+		goto(url) {
+			uni.navigateTo({
+				url
+			});
 		}
 	},
 	computed: {

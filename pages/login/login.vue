@@ -62,6 +62,11 @@ export default {
 				url: '/pages/my/my'
 			});
 		},
+		goHome(){
+			uni.switchTab({
+				url:''
+			})
+		},
 		setActive(active) {
 			console.log(active);
 			this.active = active;
