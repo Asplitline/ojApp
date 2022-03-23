@@ -2,58 +2,22 @@
   <view class="me-page">
     <u-toast ref="uToast"></u-toast>
 
-    <u-navbar
-      title="修改邮箱"
-      :autoBack="true"
-      height="44px"
-      class="t-navbar"
-    ></u-navbar>
+    <u-navbar title="修改邮箱" :autoBack="true" height="44px" class="t-navbar"></u-navbar>
     <view class="me-box">
-      <u--form
-        labelPosition="left"
-        :model="emailInfo"
-        :rules="rules"
-        ref="emailInfo"
-        labelWidth="80"
-        class="me-form"
-      >
-        <u-form-item
-          label="旧邮箱"
-          prop="oldEmail"
-          borderBottom
-          class="me-form-item"
-          ><u--input
-            v-model="emailInfo.oldEmail"
-            border="none"
-            readonly
-          ></u--input
+      <u--form labelPosition="left" :model="emailInfo" :rules="rules" ref="emailInfo" labelWidth="80" class="me-form">
+        <u-form-item label="旧邮箱" borderBottom class="me-form-item"
+          ><u--input v-model="user.email" border="none" readonly></u--input
         ></u-form-item>
-        <u-form-item
-          label="新邮箱"
-          prop="newEmail"
-          borderBottom
-          class="me-form-item"
+        <u-form-item label="新邮箱" prop="newEmail" borderBottom class="me-form-item"
           ><u--input v-model="emailInfo.newEmail" border="none"></u--input
         ></u-form-item>
-        <u-form-item
-          label="密码"
-          prop="password"
-          borderBottom
-          class="me-form-item"
-          ><u--input
-            v-model="emailInfo.password"
-            type="password"
-            border="none"
-          ></u--input
+        <u-form-item label="密码" prop="password" borderBottom class="me-form-item"
+          ><u--input v-model="emailInfo.password" type="password" border="none"></u--input
         ></u-form-item>
       </u--form>
       <view class="me-btns">
-        <u-button class="me-btn reset" type="info" @click="resetForm"
-          >重置</u-button
-        >
-        <u-button class="me-btn" type="success" @click="handleSubmit"
-          >更新</u-button
-        >
+        <u-button class="me-btn reset" type="info" @click="resetForm">重置</u-button>
+        <u-button class="me-btn" type="success" @click="handleSubmit">更新</u-button>
       </view>
     </view>
   </view>
@@ -65,7 +29,6 @@ export default {
   data() {
     return {
       emailInfo: {
-        oldEmail: '',
         newEmail: '',
         password: ''
       },
@@ -124,10 +87,7 @@ export default {
   computed: {
     ...mapState(['user'])
   },
-  onShow() {
-    this.updateUser()
-    this.emailInfo.oldEmail = this.user.email
-  },
+  onShow() {},
   methods: {
     ...mapActions(['updateUser']),
     resetForm() {
@@ -136,23 +96,20 @@ export default {
     showToast(message) {
       this.$refs.uToast.show({ message })
     },
-    async validateEmailAndUsername() {
-      const res = await this.$api({
-        url: 'check-username-or-email',
-        data: {
-          username: this.registerForm.username,
-          email: this.registerForm.email
-        }
-      })
-      console.log(res)
-    },
     handleSubmit() {
       this.$refs.emailInfo.validate().then(async (v) => {
         console.log(v)
         const { status, msg } = await this.$api({
           url: 'change-email',
-          data: this.emailInfo
+          data: { ...this.emailInfo, oldEmail: this.user.email }
         })
+        if (status === 200) {
+          this.updateUser()
+          this.resetForm()
+          console.log(this.user.email)
+          this.$set(this.emailInfo, 'oldEmail', this.user.email)
+          // this.emailInfo.oldEmail = this.user.email
+        }
         this.showToast(msg)
       })
     }

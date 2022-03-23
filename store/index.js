@@ -26,9 +26,12 @@ export default new Vuex.Store({
   actions: {
     async updateUser({ commit, state }) {
       const { data } = await api({
-        url: 'get-user-home-info',
-        method: 'get',
-        params: { uid: state.user.uid }
+        url: 'change-userInfo',
+        method: 'post',
+        data: {
+          gender: state.user.gender,
+          uid: state.user.uid
+        }
       })
       commit('setUser', data)
     }

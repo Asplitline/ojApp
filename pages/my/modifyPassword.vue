@@ -19,25 +19,29 @@
       >
         <u-form-item
           label="当前密码"
-          prop="oldEmail"
+          prop="oldPassword"
           borderBottom
           class="mp-form-item"
           ><u--input
             v-model="passwordInfo.oldPassword"
             border="none"
-            readonly
+            type="password"
           ></u--input
         ></u-form-item>
         <u-form-item
           label="新密码"
-          prop="newEmail"
+          prop="newPassword"
           borderBottom
           class="mp-form-item"
-          ><u--input v-model="passwordInfo.newPassword" border="none"></u--input
+          ><u--input
+            v-model="passwordInfo.newPassword"
+            border="none"
+            type="password"
+          ></u--input
         ></u-form-item>
         <u-form-item
           label="确定新密码"
-          prop="password"
+          prop="againPassword"
           borderBottom
           class="mp-form-item"
           ><u--input
@@ -52,7 +56,7 @@
           >重置</u-button
         >
         <u-button class="mp-btn" type="success" @click="handleSubmit"
-          >更新</u-button
+          >修改密码</u-button
         >
       </view>
     </view>
@@ -73,55 +77,29 @@ export default {
         oldPassword: [
           {
             required: true,
-            message: '请输入新电子邮箱',
-            trigger: 'blur'
-          },
-          {
-            validator: (rule, value) => {
-              const reg =
-                /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-              if (!reg.test(value)) {
-                return new Error('邮箱格式错误')
-              }
-            },
-            trigger: 'blur'
-          },
-          {
-            asyncValidator: (rule, value) => {
-              const promise = this.$api({
-                url: 'check-usernamp-or-email',
-                data: {
-                  email: this.passwordInfo.newEmail
-                }
-              })
-              return new Promise((resolve, reject) => {
-                promise
-                  .then(({ data }) => {
-                    if (data.email) {
-                      reject('邮箱已被绑定')
-                    } else {
-                      resolve()
-                    }
-                  })
-                  .catch((err) => {
-                    reject('未知错误')
-                  })
-              })
-            },
+            message: '请输入当前密码',
             trigger: 'blur'
           }
         ],
         newPassword: [
           {
             required: true,
-            message: '请输入密码',
+            message: '请输入新密码',
             trigger: 'blur'
           }
         ],
         againPassword: [
           {
             required: true,
-            message: '请输入密码',
+            message: '再次输入新密码',
+            trigger: 'blur'
+          },
+          {
+            validator: (rule, value, v) => {
+              if (value && this.passwordInfo.newPassword !== value) {
+                return new Error('两次密码不一致')
+              }
+            },
             trigger: 'blur'
           }
         ]
@@ -132,34 +110,28 @@ export default {
     ...mapState(['user'])
   },
   onShow() {
-    this.updateUser()
     this.passwordInfo.oldEmail = this.user.email
   },
-  mpthods: {
-    ...mapActions(['updateUser']),
+  methods: {
     resetForm() {
       this.$refs.passwordInfo.resetFields()
     },
     showToast(message) {
       this.$refs.uToast.show({ message })
     },
-    async validateEmailAndUsernamp() {
-      const res = await this.$api({
-        url: 'check-usernamp-or-email',
-        data: {
-          usernamp: this.registerForm.usernamp,
-          email: this.registerForm.email
-        }
-      })
-      console.log(res)
-    },
     handleSubmit() {
       this.$refs.passwordInfo.validate().then(async (v) => {
-        console.log(v)
-        const { status, msg } = await this.$api({
-          url: 'change-email',
+        const {
+          status,
+          msg,
+          data: { code }
+        } = await this.$api({
+          url: 'change-password',
           data: this.passwordInfo
         })
+        if (code === 200) {
+          this.resetForm()
+        }
         this.showToast(msg)
       })
     }
