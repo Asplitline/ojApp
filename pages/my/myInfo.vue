@@ -10,9 +10,14 @@
     <view class="mi-box">
       <u--form labelPosition="left" :model="infoData" :rules="rules" ref="infoData" errorType="toast" labelWidth="80" class="mi-form">
         <u-form-item label="头像" prop="oldEmail" borderBottom class="mi-form-item"
-          ><u-upload :fileList="upload" name="1" class="mi-upload">
+          ><u-upload :fileList="upload" previewFullImage class="mi-upload" @afterRead="afterRead" imageMode="aspectFill">
             <view class="img-box">
-              <image src="../../static/rank1.png" class="img"></image>
+              <template v-if="!infoData.avatar">
+                <image src="../../static/rank1.png" class="img"></image>
+              </template>
+              <template v-else>
+                <image :src="`${imgUrl}/${infoData.avatar}`" class="img"></image>
+              </template>
               <view class="edit-box"><u-icon class="edit-icon" name="edit-pen-fill"></u-icon></view>
             </view>
           </u-upload>
@@ -40,6 +45,9 @@
         <u-form-item label="Blog" prop="blog" borderBottom class="mi-form-item"
           ><u--input v-model="infoData.blog" border="none"></u--input>
         </u-form-item>
+        <u-form-item label="个人简介" prop="signature" borderBottom class="mi-form-item">
+          <u--textarea v-model="infoData.signature" placeholder="请输入内容"></u--textarea>
+        </u-form-item>
       </u--form>
     </view>
     <u-action-sheet :show="showSex" :actions="sexList" title="请选择性别" @close="showSex = false" @select="sexSelect"> </u-action-sheet>
@@ -48,6 +56,7 @@
 
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex'
+import { apiUrl, imgUrl } from '@/utils/static'
 export default {
   data() {
     return {
@@ -83,7 +92,8 @@ export default {
         school: [{ required: true, trigger: 'blur', message: '请输入学校名称' }]
         // Github: [{ required: true, trigger: 'blur', message: '请输入...' }],
         // blog: [{ required: true, trigger: 'blur', message: '请输入...' }]
-      }
+      },
+      imgUrl
     }
   },
   computed: {
@@ -93,10 +103,12 @@ export default {
       return i ? i.name : '请选择性别'
     }
   },
-
+  // onShow() {
+  //   this.infoData = JSON.parse(JSON.stringify(this.user))
+  // },
+  // todo 数据置空问题 + 图片问题 + 用户数据获取
   mounted() {
     this.updateUser()
-
     this.infoData = JSON.parse(JSON.stringify(this.user))
   },
   methods: {
@@ -120,6 +132,35 @@ export default {
     },
     sexSelect(v) {
       this.infoData.gender = v.value
+    },
+    afterRead(file) {
+      // this.ext = e.file.name.split('.').pop()
+      this.uploadFilePromise(file)
+    },
+    uploadFilePromise(payload) {
+      const file = new File([payload.file], payload.file.name)
+      const token = uni.getStorageSync('token')
+      return new Promise((resolve, reject) => {
+        let a = uni.uploadFile({
+          url: `${apiUrl}file/upload-avatar`,
+          // filePath: url,
+          name: 'image',
+          header: { Authorization: token },
+          file,
+          // formData: {
+          //   image: 'test'
+          // },
+          success: (res) => {
+            const { data, statusCode } = res
+            const t = JSON.parse(data)
+            this.setUser(t.data)
+            this.infoData = JSON.parse(JSON.stringify(this.user))
+          },
+          fail: (err) => {
+            console.log(err)
+          }
+        })
+      })
     }
   }
 }
@@ -132,7 +173,7 @@ export default {
 .mi-form {
   ::v-deep.mi-form-item {
     .u-form-item__body {
-      padding: 40rpx 0;
+      padding: 30rpx 0;
     }
   }
 }

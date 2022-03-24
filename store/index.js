@@ -28,10 +28,7 @@ export default new Vuex.Store({
       const { data } = await api({
         url: 'change-userInfo',
         method: 'post',
-        data: {
-          gender: state.user.gender,
-          uid: state.user.uid
-        }
+        data: { ...state.user }
       })
       commit('setUser', data)
     }
