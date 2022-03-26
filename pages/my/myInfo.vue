@@ -133,23 +133,17 @@ export default {
     sexSelect(v) {
       this.infoData.gender = v.value
     },
-    afterRead(file) {
-      // this.ext = e.file.name.split('.').pop()
-      this.uploadFilePromise(file)
+    afterRead(evt) {
+      this.uploadFilePromise(evt.file.url)
     },
-    uploadFilePromise(payload) {
-      const file = new File([payload.file], payload.file.name)
+    uploadFilePromise(url) {
       const token = uni.getStorageSync('token')
       return new Promise((resolve, reject) => {
-        let a = uni.uploadFile({
+        uni.uploadFile({
           url: `${apiUrl}file/upload-avatar`,
-          // filePath: url,
+          filePath: url,
           name: 'image',
           header: { Authorization: token },
-          file,
-          // formData: {
-          //   image: 'test'
-          // },
           success: (res) => {
             const { data, statusCode } = res
             const t = JSON.parse(data)
