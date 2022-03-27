@@ -5,36 +5,40 @@
 				<u-icon name="search" size="22"></u-icon>
 				<text class="placeholder" @click="searchPage">搜索相关题目</text>
 			</view>
+			<t-icon type="icon-random" class="ico" @click.native="gotoRandProblem"></t-icon>
 		</view>
 		<view class="center-content">
 			<u-tabs class="problem-tabs" :list="PROBLEM_LEVEL_RESERVE" lineWidth="30" lineColor=" #4b55ff" keyName="value" @click="changeTabs">
-				<view slot="right" style="padding-left: 4px;" ><u-icon name="list" size="21" bold @click="showPopup"></u-icon></view>
+				<view slot="right" style="padding-left: 4px"><u-icon name="list" size="21" bold @click="showPopup"></u-icon></view>
 			</u-tabs>
 		</view>
-		<view class="problem-list">
-			<view class="problem-item" v-for="i in problemList" :key="i.id" @click="gotoDetail(i)">
-				<view class="problem-item__title">
-					<text class="tag" :class="[PROBLEM_LEVEL[i.difficulty].class]">{{ PROBLEM_LEVEL[i.difficulty].value }}</text>
-					<text class="text">{{ i.title }}</text>
-					<view class="no">
-						<text class="prefix">No.</text>
-						{{ i.problemId }}
+		<t-box text="暂无题目" :show="loadList.length > 0">
+			<view class="problem-list">
+				<view class="problem-item" v-for="i in loadList" :key="i.id" @click="gotoDetail(i)">
+					<view class="problem-item__title">
+						<text class="tag" :class="[PROBLEM_LEVEL[i.difficulty].class]">{{ PROBLEM_LEVEL[i.difficulty].value }}</text>
+						<text class="text">{{ i.title }}</text>
+						<view class="no">
+							<text class="prefix">No.</text>
+							{{ i.problemId }}
+						</view>
+					</view>
+					<view class="problem-item__desc">
+						<u-icon name="minus" class="status">-</u-icon>
+						<view class="desc">
+							<text class="title">提交数</text>
+							<text class="num">{{ i.total }}</text>
+						</view>
+						<view class="desc">
+							<text class="title">通过率</text>
+							<text class="num">{{ handlePercentage(i.ac, i.total) }}%</text>
+						</view>
 					</view>
 				</view>
-				<view class="problem-item__desc">
-					<u-icon name="minus" class="status">-</u-icon>
-					<view class="desc">
-						<text class="title">提交数</text>
-						<text class="num">{{ i.total }}</text>
-					</view>
-					<view class="desc">
-						<text class="title">通过率</text>
-						<text class="num">{{ handlePercentage(i.ac, i.total) }}%</text>
-					</view>
-				</view>
+				<u-loadmore :status="status" @loadmore="loadData" />
 			</view>
-			<u-loadmore :status="status" @loadmore="loadData" />
-		</view>
+		</t-box>
+
 		<u-popup :show="show" :round="10" mode="bottom" class="filter-popup">
 			<view class="filter-box">
 				<view class="filter-header">
@@ -60,11 +64,11 @@
 
 <script>
 import { REMOTE_OJ, PROBLEM_LEVEL, PROBLEM_LEVEL_RESERVE } from '@/utils/static';
+import mixins from '@/mixins/index';
 export default {
 	data() {
 		return {
 			keyword: null,
-			status: 'loadmore',
 			query: {
 				currentPage: 1,
 				limit: 15,
@@ -72,9 +76,7 @@ export default {
 				difficulty: '',
 				tagId: ''
 			},
-			total: 10,
 			mulActive: [],
-			problemList: [],
 			show: false,
 			tags: [],
 			REMOTE_OJ,
@@ -82,6 +84,7 @@ export default {
 			PROBLEM_LEVEL_RESERVE
 		};
 	},
+	mixins: [mixins],
 	methods: {
 		search() {
 			console.log('search');
@@ -95,18 +98,12 @@ export default {
 			if (Number.isNaN(percentage)) return '00.00';
 			else return percentage.toFixed(2);
 		},
-		loadData() {
-			if (this.isFull) return;
-			else {
-				this.query.currentPage++;
-				this.fetchProblemList();
-			}
-		},
+
 		async fetchTags() {
 			const { data } = await this.$api({ url: 'get-all-problem-tags', method: 'get' });
 			this.tags = data;
 		},
-		async fetchProblemList() {
+		async fetchData() {
 			this.status = 'loading';
 			const { data } = await this.$api({
 				url: 'get-problem-list',
@@ -114,22 +111,16 @@ export default {
 				data: this.query
 			});
 			this.total = data.total;
-			if (this.isFull) {
-				this.status = 'nomore';
-			} else {
-				this.problemList.push(...data.records);
-				if (this.isFull) this.status = 'nomore';
-				else this.status = 'loadmore';
-			}
+			this.handleLoadData(data.records);
 		},
 		initLoad() {
-			this.problemList = [];
+			this.loadList = [];
 			this.query.currentPage = 1;
 		},
 		changeTabs(i) {
 			this.initLoad();
 			this.query.difficulty = i.key;
-			this.fetchProblemList();
+			this.fetchData();
 		},
 		resetFilter() {
 			this.initLoad();
@@ -140,12 +131,12 @@ export default {
 				tagId: ''
 			});
 			this.show = false;
-			this.fetchProblemList();
+			this.fetchData();
 		},
 		confirmFilter() {
 			this.show = false;
 			this.initLoad();
-			this.fetchProblemList();
+			this.fetchData();
 		},
 		gotoDetail(i) {
 			console.log(i);
@@ -157,18 +148,16 @@ export default {
 			uni.navigateTo({
 				url: '/pages/search/searchProblem'
 			});
-		}
-	},
-	onReachBottom() {
-		this.loadData();
-	},
-	computed: {
-		isFull() {
-			return this.total === this.problemList.length;
+		},
+		async gotoRandProblem() {
+			const { data } = await this.$api({ url: 'get-random-problem', method: 'get' });
+			uni.navigateTo({
+				url: '/pages/problem/problemDetail?id=' + data.problemId
+			});
 		}
 	},
 	mounted() {
-		this.fetchProblemList();
+		this.fetchData();
 	}
 };
 </script>
@@ -180,9 +169,10 @@ export default {
 	background-color: #fff;
 }
 .top-search {
-	padding: 20rpx 60rpx;
-
+	padding: 20rpx 40rpx;
+	display: flex;
 	.search-box {
+		flex: 1;
 		display: flex;
 		padding: 0 40rpx;
 		background-color: #f1f2f6;
@@ -195,6 +185,12 @@ export default {
 			font-size: 30rpx;
 			margin-left: 4rpx;
 		}
+	}
+	.ico {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		width: 100rpx;
 	}
 }
 

@@ -22,3 +22,20 @@ uni-page-body {
   height: 100%;
   min-height: 100vh;
 }
+
+uni-page-body > uni-view {
+  height: 100%;
+}
+
+/* #ifdef APP-PLUS*/
+.t-pg {
+  padding-top: 160rpx !important;
+  height: 100%;
+}
+/* #endif */
+/* #ifndef APP-PLUS*/
+.t-pg {
+  padding-top: 100rpx !important;
+  height: 100%;
+}
+/* #endif */

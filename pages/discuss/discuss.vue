@@ -7,9 +7,9 @@
 			</view>
 		</view>
 		<view class="center-tabs"><u-tabs :list="category" @click="setActive"></u-tabs></view>
-		<view class="discuss-list">
-			<template v-if="total > 0">
-				<view class="discuss-item" v-for="i in discussList" :key="i.id" @click="gotoDetail(i)">
+		<t-box text="暂无讨论" :show="total > 0">
+			<view class="discuss-list">
+				<view class="discuss-item" v-for="i in loadList" :key="i.id" @click="gotoDetail(i)">
 					<view class="discuss-item-header">
 						<image :src="`${$imgUrl}${i.avatar}`" mode="" class="discuss-item__avatar" v-if="i.avatar"></image>
 						<view class="discuss-item__first" v-else>{{ i | firstName }}</view>
@@ -39,13 +39,13 @@
 					</view>
 				</view>
 				<u-loadmore :status="status" @loadmore="loadData" />
-			</template>
-			<u-empty v-else></u-empty>
-		</view>
+			</view>
+		</t-box>
 	</t-page>
 </template>
 
 <script>
+import mixins from '@/mixins';
 export default {
 	data() {
 		return {
@@ -55,12 +55,10 @@ export default {
 				limit: 15,
 				keyword: '',
 				cid: null
-			},
-			total: 10,
-			discussList: [],
-			status: 'loadmore'
+			}
 		};
 	},
+	mixins: [mixins],
 	filters: {
 		firstName(v) {
 			return v.author.slice(0, 1);
@@ -75,31 +73,19 @@ export default {
 			});
 			this.category = data;
 		},
-		async fetchDisscus() {
+		async fetchData() {
 			this.status = 'loading';
 			const { data } = await this.$api({ url: 'discussions', method: 'get', data: this.query });
 			this.total = data.total;
-			if (this.isFull) {
-				this.status = 'nomore';
-			} else {
-				this.discussList.push(...data.records);
-				if (this.isFull) this.status = 'nomore';
-				else this.status = 'loadmore';
-			}
+			this.handleLoadData(data.records);
 		},
 		setActive(v) {
 			this.query.cid = v.id === 0 ? '' : v.id;
 			this.query.currentPage = 1;
-			this.discussList = [];
-			this.fetchDisscus();
+			this.loadList = [];
+			this.fetchData();
 		},
-		loadData() {
-			if (this.isFull) return;
-			else {
-				this.query.currentPage++;
-				this.fetchDisscus();
-			}
-		},
+
 		gotoDetail(i) {
 			uni.navigateTo({
 				url: '/pages/discuss/discussDetail?id=' + i.id
@@ -111,14 +97,9 @@ export default {
 			});
 		}
 	},
-	computed: {
-		isFull() {
-			return this.total === this.discussList.length;
-		}
-	},
 	onShow() {
 		this.fetchCategory();
-		this.fetchDisscus();
+		this.fetchData();
 	}
 };
 </script>

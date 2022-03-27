@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url('//at.alicdn.com/t/font_3207542_lfqockfvrx.css');
+@import url('//at.alicdn.com/t/font_3207542_yj7g3i8icae.css');
 .iconfont {
   display: inline-block;
 }

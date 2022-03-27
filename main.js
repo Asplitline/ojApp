@@ -11,7 +11,6 @@ Vue.config.productionTip = false
 
 App.mpType = 'app'
 
-Vue.component('')
 
 const app = new Vue({
 	...App,

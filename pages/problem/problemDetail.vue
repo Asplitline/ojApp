@@ -1,62 +1,67 @@
 <template>
-	<view class="problem-detail-page">
-		<u-navbar :title="problem.title" :autoBack="true" height="44px" class="t-navbar"></u-navbar>
-		<view class=""></view>
-		<view class="problem-top">
-			<view class="problem-top__tag" :class="[PROBLEM_LEVEL[problem.difficulty].class]">{{ PROBLEM_LEVEL[problem.difficulty].value }}</view>
-			<view class="problem-top__num">
-				<text class="num">{{ problemCount.ac }}</text>
-				<text class="text">通过</text>
-			</view>
-			<view class="problem-top__num">
-				<text class="num">{{ problemCount.total }}</text>
-				<text class="text">提交</text>
-			</view>
+	<view>
+		<u-navbar :title="problem.title" :autoBack="true" height="44px" class="t-navbar">
+			<template #right>
+				<text class="link" @click="gotoMySubmit">我的提交</text>
+			</template>
+		</u-navbar>
+		<view class="pd-page t-pg">
+			<view class="problem-top" v-if="PROBLEM_LEVEL[problem.difficulty]">
+				<view class="problem-top__tag" :class="[PROBLEM_LEVEL[problem.difficulty].class]">{{ PROBLEM_LEVEL[problem.difficulty].value }}</view>
+				<view class="problem-top__num">
+					<text class="num">{{ problemCount.ac }}</text>
+					<text class="text">通过</text>
+				</view>
+				<view class="problem-top__num">
+					<text class="num">{{ problemCount.total }}</text>
+					<text class="text">提交</text>
+				</view>
 
-			<view class="problem-top__statistic"><t-icon @click.native="showPopup = true" type="icon-cq-piechat"></t-icon></view>
-		</view>
-		<view class="problem-content">
-			<view class="problem-content__desc">
-				<text class="title">题目描述</text>
-				<rich-text :nodes="problem.description" class="content"></rich-text>
+				<view class="problem-top__statistic"><t-icon @click.native="showPopup = true" type="icon-cq-piechat"></t-icon></view>
 			</view>
-			<view class="problem-content__desc">
-				<text class="title">输入描述</text>
-				<rich-text :nodes="problem.input" class="content"></rich-text>
+			<view class="problem-content">
+				<view class="problem-content__desc">
+					<text class="title">题目描述</text>
+					<rich-text :nodes="problem.description" class="content"></rich-text>
+				</view>
+				<view class="problem-content__desc">
+					<text class="title">输入描述</text>
+					<rich-text :nodes="problem.input" class="content"></rich-text>
+				</view>
+				<view class="problem-content__desc">
+					<text class="title">输出描述</text>
+					<rich-text :nodes="problem.output" class="content"></rich-text>
+				</view>
 			</view>
-			<view class="problem-content__desc">
-				<text class="title">输出描述</text>
-				<rich-text :nodes="problem.output" class="content"></rich-text>
+			<view class="problem-example" v-for="(i, idx) in examplesArr" :key="idx">
+				<view class="problem-example__input">
+					<text class="title">示例 {{ idx + 1 }} 输入</text>
+					<pre class="desc">{{ i.input }}</pre>
+				</view>
+				<view class="problem-example__output">
+					<text class="title">示例 {{ idx + 1 }} 输出</text>
+					<pre class="desc">{{ i.output }}</pre>
+				</view>
 			</view>
-		</view>
-		<view class="problem-example" v-for="(i, idx) in examplesArr" :key="idx">
-			<view class="problem-example__input">
-				<text class="title">示例 {{ idx + 1 }} 输入</text>
-				<pre class="desc">{{ i.input }}</pre>
-			</view>
-			<view class="problem-example__output">
-				<text class="title">示例 {{ idx + 1 }} 输出</text>
-				<pre class="desc">{{ i.output }}</pre>
-			</view>
-		</view>
-		<view class="problem-tip">
-			<view class="problem-tip__item">
-				<text class="title">时间限制</text>
-				<text class="text">{{ problem.timeLimit }}MS</text>
-			</view>
-			<view class="problem-tip__item">
-				<text class="title">内存限制</text>
-				<text class="text">{{ problem.memoryLimit }}MB</text>
-			</view>
-			<view class="problem-tip__item">
-				<text class="title">出题人</text>
-				<text class="text">{{problem.author}}</text>
+			<view class="problem-tip">
+				<view class="problem-tip__item">
+					<text class="title">时间限制</text>
+					<text class="text">{{ problem.timeLimit }}MS</text>
+				</view>
+				<view class="problem-tip__item">
+					<text class="title">内存限制</text>
+					<text class="text">{{ problem.memoryLimit }}MB</text>
+				</view>
+				<view class="problem-tip__item">
+					<text class="title">出题人</text>
+					<text class="text">{{ problem.author }}</text>
+				</view>
 			</view>
 		</view>
 		<u-popup :show="showPopup" class="charts-popup">
 			<view class="charts-main">
 				<qiun-data-charts v-if="problemCount.total" type="pie" :chartData="chartData" :echartsApp="true" background="none" />
-				<u-empty  text="没有提交记录" v-else></u-empty>
+				<u-empty text="没有提交记录" v-else></u-empty>
 			</view>
 			<view class="charts-tips" @click="showPopup = false"><u-icon class="close-icon" name="close" size="24" color="#fff"></u-icon></view>
 		</u-popup>
@@ -146,6 +151,11 @@ export default {
 					};
 				})
 				.filter(i => i.value);
+		},
+		gotoMySubmit() {
+			uni.navigateTo({
+				url: '/pages/problem/mySubmitRecord?id=' + this.id
+			});
 		}
 	},
 	computed: {
@@ -157,10 +167,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.problem-detail-page {
-	.t-navbar {
-		height: 44px;
-	}
+.pd-page {
 }
 .problem-top {
 	display: flex;
@@ -286,5 +293,8 @@ export default {
 			padding: 10rpx;
 		}
 	}
+}
+.link {
+	color: $uni-color-primary;
 }
 </style>

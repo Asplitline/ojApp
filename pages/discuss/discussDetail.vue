@@ -1,102 +1,102 @@
 <template>
-	<view class="discuss-detail-page">
+	<view>
 		<u-navbar title="" :autoBack="true" height="44px" class="t-navbar"></u-navbar>
-		<view class="discuss-detail">
-			<view class="discuss-detail__title">{{ detail.title }}</view>
-			<view class="discuss-detail__author">
-				<image :src="`${$imgUrl}${detail.avatar}`" mode="" class="avatar"></image>
-				<view class="author">
-					<text class="name">{{ detail.root }}</text>
-					<view class="box">
-						<text class="views">{{ detail.viewNum }} 阅读</text>
-						·
-						<text class="date">{{ detail.gmtCreate | handleDate }}</text>
+		<view class="dd-page t-pg">
+			<view class="discuss-detail">
+				<view class="discuss-detail__title">{{ detail.title }}</view>
+				<view class="discuss-detail__author">
+					<image :src="`${$imgUrl}${detail.avatar}`" mode="" class="avatar"></image>
+					<view class="author">
+						<text class="name">{{ detail.root }}</text>
+						<view class="box">
+							<text class="views">{{ detail.viewNum }} 阅读</text>
+							·
+							<text class="date">{{ detail.gmtCreate | handleDate }}</text>
+						</view>
 					</view>
 				</view>
-			</view>
-			<view class="discuss-detail__content">
-				<view v-html="detail.content"></view>
-				<!-- <rich-text :nodes="detail.content"></rich-text> -->
-			</view>
-			<view class="discuss-comment">
-				<view class="comment-title">
-					共
-					<text class="total">{{ commentList.length }}</text>
-					个讨论
+				<view class="discuss-detail__content">
+					<view v-html="detail.content"></view>
+					<!-- <rich-text :nodes="detail.content"></rich-text> -->
 				</view>
-				<view class="comment-list" v-if="commentList.length">
-					<view class="comment-item" v-for="i in commentList" :key="i.id">
-						<view class="comment-item__hd">
-							<image :src="`${$imgUrl}${i.fromAvatar}`" mode="" class="avatar" v-if="!$utils.isEmpty(i.fromAvatar)"></image>
-							<view class="avatar-placeholder" v-else>{{ i.fromName | firstName }}</view>
-							<view class="author">
-								<text class="name">{{ i.fromName }}</text>
-								<text class="date">{{ i.gmtCreate | handleDate }}</text>
+				<view class="discuss-comment">
+					<view class="comment-title">
+						共
+						<text class="total">{{ commentList.length }}</text>
+						个讨论
+					</view>
+					<view class="comment-list" v-if="commentList.length">
+						<view class="comment-item" v-for="i in commentList" :key="i.id">
+							<view class="comment-item__hd">
+								<image :src="`${$imgUrl}${i.fromAvatar}`" mode="" class="avatar" v-if="!$utils.isEmpty(i.fromAvatar)"></image>
+								<view class="avatar-placeholder" v-else>{{ i.fromName | firstName }}</view>
+								<view class="author">
+									<text class="name">{{ i.fromName }}</text>
+									<text class="date">{{ i.gmtCreate | handleDate }}</text>
+								</view>
+							</view>
+							<view class="comment-item__bd">{{ i.content }}</view>
+							<view class="comment-item__ft">
+								<view class="comment-item__ft--texts">
+									<text class="text">
+										点赞
+										<text class="num">{{ i.likeNum }}</text>
+									</text>
+									·
+									<text class="text">
+										回复
+										<text class="num">{{ i.replyList.length }}</text>
+									</text>
+								</view>
+								<view class="comment-item__ft--icons">
+									<t-icon type="icon-thumbs-o-up" color="#777" class="icon" :class="{ 'is-like': i.isLike }" @click.native="commentLike(i)"></t-icon>
+									<t-icon type="icon-comments" color="#777" class="icon" @click.native="commentReply(i)"></t-icon>
+								</view>
+							</view>
+
+							<view class="reply-list" v-if="i.replyList.length > 0">
+								<view class="reply-item" v-for="reply in i.replyList" :key="reply.id">
+									<text class="name">{{ reply.fromName }} :</text>
+									<text class="content">{{ reply.content }}</text>
+								</view>
+								<view>
+									<text class="reply-total">共 {{ i.totalReplyNum }} 条回复</text>
+									<text v-if="i.replyList.length < i.totalReplyNum" class="reply-all" @click="showAllReply(i.id)">查看全部</text>
+								</view>
 							</view>
 						</view>
-						<view class="comment-item__bd">{{ i.content }}</view>
-						<view class="comment-item__ft">
-							<view class="comment-item__ft--texts">
-								<text class="text">
-									点赞
-									<text class="num">{{ i.likeNum }}</text>
-								</text>
-								·
-								<text class="text">
-									回复
-									<text class="num">{{ i.replyList.length }}</text>
-								</text>
-							</view>
-							<view class="comment-item__ft--icons">
-								<t-icon type="icon-thumbs-o-up" color="#777" class="icon" :class="{ 'is-like': i.isLike }" @click.native="commentLike(i)"></t-icon>
-								<t-icon type="icon-comments" color="#777" class="icon" @click.native="commentReply(i)"></t-icon>
-							</view>
+					</view>
+					<u-empty v-else></u-empty>
+
+					<view class="bottom-tools" v-if="!showComment">
+						<view class="bottom-tool" :class="{ active: detail.hasLike }">
+							<t-icon type="icon-thumbs-o-up" class="bottom-tool__icon" color="#707070" @click.native="discussLike"></t-icon>
+							<text class="bottom-tool__num">{{ detail.likeNum }}</text>
+						</view>
+						<view class="bottom-tool" @click="showModal = true">
+							<t-icon type="icon-error" class="bottom-tool__icon" color="#cc2d19"></t-icon>
+							<text class="bottom-tool__num">举报</text>
 						</view>
 
-						<view class="reply-list" v-if="i.replyList.length > 0">
-							<view class="reply-item" v-for="reply in i.replyList" :key="reply.id">
-								<text class="name">{{ reply.fromName }} :</text>
-								<text class="content">{{ reply.content }}</text>
+						<view class="bottom-input" @click="showComment = true" v-if="isLogin">说点什么把....</view>
+						<view class="bottom-input" v-else>登陆后可以评论</view>
+					</view>
+					<view class="comment-box" @click.self="closeCommentBox" @touchmove.native.prevent v-else>
+						<view class="comment-ipt">
+							<u--textarea v-model="comment" placeholder="请输入内容"></u--textarea>
+							<view class="comment-tool">
+								<image :src="`${$imgUrl}${user.avatar}`" class="avatar"></image>
+								<u-button class="send-btn" @click="submitComment">
+									<t-icon type="icon-send" color="#fff" fontSize="16" class="send-btn-icon"></t-icon>
+									发送
+								</u-button>
 							</view>
-							<view>
-								<text class="reply-total">共 {{ i.totalReplyNum }} 条回复</text>
-								<text v-if="i.replyList.length < i.totalReplyNum" class="reply-all" @click="showAllReply(i.id)">查看全部</text>
-							</view>
-						</view>
-					</view>
-				</view>
-				<u-empty v-else></u-empty>
-
-				<view class="bottom-tools" v-if="!showComment">
-					<view class="bottom-tool" :class="{ active: detail.hasLike }">
-						<t-icon type="icon-thumbs-o-up" class="bottom-tool__icon" color="#707070" @click.native="discussLike"></t-icon>
-						<text class="bottom-tool__num">{{ detail.likeNum }}</text>
-					</view>
-					<view class="bottom-tool" @click="showModal = true">
-						<t-icon type="icon-error" class="bottom-tool__icon" color="#cc2d19"></t-icon>
-						<text class="bottom-tool__num">举报</text>
-					</view>
-		<!-- 			<view class="bottom-tool">
-						<t-icon type="icon-share" class="bottom-tool__icon" color="#75c82b"></t-icon>
-						<text class="bottom-tool__num" @click="shareLink">分享</text>
-					</view> -->
-					<view class="bottom-input" @click="showComment = true" v-if="isLogin">说点什么把....</view>
-					<view class="bottom-input" v-else>登陆后可以评论</view>
-				</view>
-				<view class="comment-box" @click.self="closeCommentBox" @touchmove.native.prevent v-else>
-					<view class="comment-ipt">
-						<u--textarea v-model="comment" placeholder="请输入内容"></u--textarea>
-						<view class="comment-tool">
-							<image :src="`${$imgUrl}${user.avatar}`" class="avatar"></image>
-							<u-button class="send-btn" @click="submitComment">
-								<t-icon type="icon-send" color="#fff" fontSize="16" class="send-btn-icon"></t-icon>
-								发送
-							</u-button>
 						</view>
 					</view>
 				</view>
 			</view>
 		</view>
+
 		<u-modal title="举报文章" :show="showModal">
 			<u--form :borderBottom="false" labelPosition="top" :model="reportForm" :rules="rules" ref="reportRef" style="width:100%;" labelWidth="140px">
 				<u-form-item label="标签" prop="tag">
@@ -317,7 +317,7 @@ export default {
 		async discussLike() {
 			const { status } = await this.$api({ url: 'discussion-like', method: 'get', data: { did: this.id, toLike: !this.detail.hasLike } });
 			this.fetchDiscussDetail();
-		},
+		}
 		// shareLink() {
 		// 	let pages = getCurrentPages();
 		// 	let route = pages[pages.length - 1].route;
@@ -337,10 +337,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.discuss-detail-page {
-	.t-navbar {
-		height: 44px;
-	}
+.dd-page {
 	.discuss-detail {
 		padding: 0 30rpx 160rpx;
 		&__title {
