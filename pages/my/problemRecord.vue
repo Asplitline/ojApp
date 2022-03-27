@@ -6,7 +6,7 @@
         <view class="pr-header">
           <view class="pr-header__left">
             <text class="title">{{ i.displayPid }} {{ i.title }}</text>
-            <text class="date">2018-08-22 19:00:00</text>
+            <text class="date">{{ i.submitTime | formatDate }}</text>
           </view>
           <view class="pr-header__right"> Accept </view>
         </view>
@@ -28,9 +28,11 @@
             <text class="pr-body__item--right">{{ i.language }}</text>
           </view>
         </view>
-        <view class="pr-body">
-          <button class="btn">题目详情</button>
-          <button class="btn">我的代码</button>
+        <view class="pr-footer">
+          <button class="btn success" @click="gotoProblemDetail(i)">
+            <t-icon color="#5ac725" fontSize="36rpx" type="icon-Share-"></t-icon> 题目详情
+          </button>
+          <button class="btn primary" @click="gotoCodeDetail(i)"><t-icon fontSize="36rpx" type="icon-code"></t-icon>我的代码</button>
         </view>
       </view>
     </view>
@@ -59,7 +61,18 @@ export default {
         }
       })
       this.list = records
+
       // console.log(res)
+    },
+    gotoProblemDetail(i) {
+      uni.navigateTo({
+        url: '/pages/problem/problemDetail?id=' + i.displayPid
+      })
+    },
+    gotoCodeDetail(i) {
+      uni.navigateTo({
+        url: '/pages/my/codeDetail?id=' + i.submitId
+      })
     }
   },
   mounted() {
@@ -81,6 +94,7 @@ export default {
       margin-bottom: 30rpx;
       border-radius: 10rpx;
       box-shadow: 1px 1px 1px 1px #0000000d;
+      border: 1px solid #fafafa;
     }
     .pr-header {
       display: flex;
@@ -111,7 +125,7 @@ export default {
         display: flex;
         align-items: center;
         flex-direction: column;
-        padding: 30rpx 0 10rpx;
+        padding: 30rpx 0;
         &--left,
         &--right {
           font-size: 26rpx;
@@ -120,6 +134,36 @@ export default {
         }
         &--right {
           margin-top: 10rpx;
+        }
+      }
+    }
+    .pr-footer {
+      display: flex;
+      .btn {
+        display: flex;
+        align-items: center;
+        background-color: transparent;
+        outline: none;
+        border: 1px solid transparent;
+        height: 70rpx;
+        line-height: 70rpx;
+        font-size: 32rpx;
+        border-radius: 6rpx;
+        min-width: 160rpx;
+        padding: 0 20rpx;
+        &.primary {
+          color: $uni-color-primary;
+          /* border-color: $u-primary; */
+        }
+        &.success {
+          color: $uni-color-success;
+          /* border-color: $u-success; */
+        }
+        &::after {
+          display: none;
+        }
+        .iconfont {
+          margin-right: 10rpx;
         }
       }
     }
