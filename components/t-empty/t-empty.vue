@@ -1,19 +1,22 @@
 <template>
-	<view class="t-empty">
-		<slot>{{ text }}</slot>
-	</view>
+	<view class="t-empty"><slot>{{text}}</slot></view>
 </template>
 
 <script>
 export default {
-	name: 't-empty',
-	props: {
-		text: {
-			type: String,
-			default: '暂无数据'
+	name:"t-empty",
+	props:{
+		text:{
+			type:String,
+			default:'暂无数据'
 		}
+	},
+	data() {
+		return {
+
+		};
 	}
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -23,6 +26,5 @@ export default {
 	justify-content: center;
 	height: 300rpx;
 	width: 100%;
-	background-color: #fafafa;
 }
 </style>

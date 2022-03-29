@@ -36,7 +36,7 @@
 				</view>
 			</view>
 		</view>
-		<u-popup :show="showPopup" :round="10" mode="bottom">
+		<u-popup :show="showPopup" :round="10" mode="bottom" @close="showPopup = false">
 			<view class="t-popup"><button class="btn" @click="logout">退出登录</button></view>
 		</u-popup>
 	</t-page>

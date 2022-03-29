@@ -9,7 +9,7 @@
 		<view class="center-tabs"><u-tabs :list="category" @click="setActive"></u-tabs></view>
 		<t-box text="暂无讨论" :show="total > 0">
 			<view class="discuss-list">
-				<view class="discuss-item" v-for="i in loadList" :key="i.id" @click="gotoDetail(i)">
+				<view class="discuss-item" v-for="(i,idx) in loadList" :key="idx" @click="gotoDetail(i)">
 					<view class="discuss-item-header">
 						<image :src="`${$imgUrl}${i.avatar}`" mode="" class="discuss-item__avatar" v-if="i.avatar"></image>
 						<view class="discuss-item__first" v-else>{{ i | firstName }}</view>

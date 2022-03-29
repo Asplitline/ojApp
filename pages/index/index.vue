@@ -1,9 +1,9 @@
 <template>
   <t-page class="index">
     <u-swiper :list="carouselList" indicatorMode="line" keyName="url" :autoplay="false" class="swiper"></u-swiper>
-
+    <!-- <navigator url="/pages/test" hover-class="navigator-hover">test </navigator> -->
     <view class="rank-content">
-      <view class="rank-header">
+      <view class="rank-header">	
         <text class="title">近期排名(7天)</text>
         <view @click="goto" class="more">
           <text>总排名</text>
@@ -40,11 +40,15 @@
       <view class="recent-list">
         <view class="recent-item" v-for="i in recentOtherContest" :key="i.id">
           <view class="recent-item__top">
-            <text class="title">{{ i.title }}</text>
+            <text class="title" @click="skipOuterLink(i)">{{ i.title }}</text>
           </view>
           <view class="recent-item__bottom">
-            <view class="text"><text>时间：2020-12-12 12:30</text></view>
-            <view class="text"><text>时长: 12:30</text></view>
+            <view class="text"
+              ><text>时间：{{ i.beginTime | formatDate('yyyy-MM-DD hh:mm') }}</text></view
+            >
+            <view class="text"
+              ><text>时长: {{ handleTime(i) }}</text></view
+            >
           </view>
         </view>
       </view>
@@ -79,6 +83,11 @@ export default {
     }
   },
   methods: {
+    handleTime({ beginTime, endTime }) {
+      // const dateToNo =
+      const dn = this.$utils.dateToNumber
+      return this.$utils.showDate(dn(endTime) - dn(beginTime))
+    },
     fetchData() {
       this.fetchCarousel()
       this.fetchRankList()
@@ -104,6 +113,14 @@ export default {
       uni.navigateTo({
         url: '/pages/index/rankDetail'
       })
+    },
+    skipOuterLink(i) {
+      // #ifdef APP-PLUS
+      plus.runtime.openURL(i.url)
+      // #endif
+      // #ifdef H5
+      window.location.href = i.url
+      // #endif
     }
   }
 }
@@ -233,8 +250,10 @@ export default {
         margin-bottom: 40rpx;
         &__top {
           .title {
-            font-size: 32rpx;
+            font-size: 30rpx;
             line-height: 1.2;
+            color: $uni-color-primary;
+            text-decoration: underline;
           }
         }
         &__bottom {

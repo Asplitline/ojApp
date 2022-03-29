@@ -1,0 +1,91 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 3207542 */
+  src: url('iconfont.woff2?t=1648568688235') format('woff2'),
+       url('iconfont.woff?t=1648568688235') format('woff'),
+       url('iconfont.ttf?t=1648568688235') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-timer:before {
+  content: "\e746";
+}
+
+.icon-kaoshianpai:before {
+  content: "\e7be";
+}
+
+.icon-a-zaixianxuexikaoshipeixunkecheng-53:before {
+  content: "\e8d3";
+}
+
+.icon-random:before {
+  content: "\e686";
+}
+
+.icon-list-copy:before {
+  content: "\e69f";
+}
+
+.icon-chenggongtishi:before {
+  content: "\e61e";
+}
+
+.icon-error1:before {
+  content: "\e604";
+}
+
+.icon-icon-test:before {
+  content: "\e651";
+}
+
+.icon-icon-test1:before {
+  content: "\e652";
+}
+
+.icon-code:before {
+  content: "\ea77";
+}
+
+.icon-Share-:before {
+  content: "\ea92";
+}
+
+.icon-Logout-filled:before {
+  content: "\e725";
+}
+
+.icon-Close:before {
+  content: "\e67b";
+}
+
+.icon-comments:before {
+  content: "\e614";
+}
+
+.icon-send:before {
+  content: "\e688";
+}
+
+.icon-thumbs-o-up:before {
+  content: "\e71f";
+}
+
+.icon-error:before {
+  content: "\e619";
+}
+
+.icon-share:before {
+  content: "\e717";
+}
+
+.icon-cq-piechat:before {
+  content: "\e70d";
+}
+

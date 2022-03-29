@@ -130,6 +130,14 @@
 				"navigationStyle": "custom"
 			}
 
+		}, {
+			"path": "pages/exam/exam",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+
 		}
 	],
 	"globalStyle": {
@@ -155,11 +163,18 @@
 				"selectedIconPath": "static/tabbar/list-a.png"
 			},
 			{
+				"pagePath": "pages/exam/exam",
+				"text": "比赛",
+				"iconPath": "static/tabbar/exam.png",
+				"selectedIconPath": "static/tabbar/exam-a.png"
+			},
+			{
 				"pagePath": "pages/discuss/discuss",
 				"text": "交流区",
 				"iconPath": "static/tabbar/discuss.png",
 				"selectedIconPath": "static/tabbar/discuss-a.png"
 			},
+
 			{
 				"pagePath": "pages/my/my",
 				"text": "我",
