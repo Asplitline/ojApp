@@ -123,6 +123,14 @@
 				"navigationStyle": "custom"
 			}
 		}, {
+			"path": "pages/exam/exam",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+
+		}, {
 			"path": "pages/problem/mySubmitRecord",
 			"style": {
 				"navigationBarTitleText": "",
@@ -131,13 +139,12 @@
 			}
 
 		}, {
-			"path": "pages/exam/exam",
+			"path": "pages/exam/examDetail",
 			"style": {
 				"navigationBarTitleText": "",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
-
 		}
 	],
 	"globalStyle": {

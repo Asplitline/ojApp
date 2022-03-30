@@ -215,6 +215,7 @@ export default {
 						align-items: center;
 					}
 					.title {
+						padding-right: 140rpx;
 						margin-right: 10rpx;
 					}
 					.text {

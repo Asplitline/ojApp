@@ -181,16 +181,19 @@ export const CONTEST_STATUS_REVERSE = {
 	'-1': {
 		name: 'Scheduled',
 		color: '#f90',
-		text: '未开始'
+		text: '未开始',
+		order: 2
 	},
 	'0': {
 		name: 'Running',
 		color: '#19be6b',
-		text: '进行中'
+		text: '进行中',
+		order: 3,
 	},
 	'1': {
 		name: 'Ended',
 		color: '#ed3f14',
-		text: '已结束'
+		text: '已结束',
+		order: 1
 	}
 }

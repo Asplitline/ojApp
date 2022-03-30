@@ -58,9 +58,12 @@ export default {
 	methods: {
 		...mapMutations(['setUser', 'setToken']),
 		back() {
-			uni.switchTab({
-				url: '/pages/my/my'
-			});
+			uni.navigateBack({
+				delta:1
+			})
+			// uni.switchTab({
+			// 	url: '/pages/my/my'
+			// });
 		},
 		goHome() {
 			uni.switchTab({

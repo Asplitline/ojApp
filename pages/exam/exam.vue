@@ -2,13 +2,13 @@
 	<t-page class="exam-page">
 		<!-- <view class="exam-header"><text>考试列表</text></view> -->
 		<view class="exam-list">
-			<view class="exam-item" v-for="i in list" :key="i.id">
+			<view class="exam-item" v-for="(i,idx) in loadList" :key="idx" @click="gotoExamDetail(i.id)">
 				<view class="exam-item__title">
 					{{ i.title }}
 					<t-icon type="icon-lock" class="icon" :color="['', '#d9534f', '#f0ad4e'][i.auth]" fontSize="40rpx" v-if="i.auth !== 0"></t-icon>
 				</view>
 				<!-- <view class="exam-item__desc">{{ i.description }}</view> -->
-				<view class="exam-item__tag" :style="{ backgroundColor: $static.CONTEST_STATUS_REVERSE[i.status].color }">{{ $static.CONTEST_STATUS_REVERSE[i.status].text }}</view>
+				<view class="exam-item__tag" :style="{ backgroundColor: $static.CONTEST_STATUS_REVERSE[i.st].color }">{{ $static.CONTEST_STATUS_REVERSE[i.st].text }}</view>
 				<view class="exam-item__info">
 					<view class="info-box">
 						<text class="info-box__text">开始时间</text>
@@ -19,21 +19,50 @@
 						<text class="info-box__text">{{ i.endTime | formatDate }}</text>
 					</view>
 				</view>
-				<!-- <view class="exam-item__duration">{{ $utils.showDate(i.duration) }}</view> -->
 			</view>
+			<u-loadmore :status="status" @loadmore="loadData" />
 		</view>
 	</t-page>
 </template>
 
 <script>
+import mixins from '@/mixins';
 export default {
 	data() {
 		return {
 			list: this.$mock.contestList
 		};
 	},
+	mixins: [mixins],
+	methods: {
+		async fetchData() {
+			const {
+				data: { records, total }
+			} = await this.$api({ url: 'get-contest-list', method: 'get', data: { ...this.query } });
+			const now = Date.now();
+			const res = records
+				.map(i => {
+					return { ...i, st: this.handleStatus(i) };
+				})
+				.sort((a, b) => {
+					return -this.$static.CONTEST_STATUS_REVERSE[a.st].order + this.$static.CONTEST_STATUS_REVERSE[b.st].order;
+				});
+			console.log(res);
+			this.total = total;
+			this.handleLoadData(res);
+		},
+		handleStatus({ startTime, endTime }) {
+			return this.$utils.getCurrentStatus(startTime, endTime);
+		},
+		gotoExamDetail(id) {
+			console.log(111);
+			uni.navigateTo({
+				url: '/pages/exam/examDetail?id=' + id
+			});
+		}
+	},
 	onShow() {
-		console.log(this.list);
+		this.fetchData();
 	}
 };
 </script>
@@ -56,7 +85,7 @@ export default {
 			padding: 30rpx;
 			border-radius: 10rpx;
 			box-shadow: 1px 4rpx 8rpx 1px #4b55ff33;
-				
+
 			&:last-child {
 				margin-bottom: 0;
 			}
@@ -66,7 +95,8 @@ export default {
 				letter-spacing: 1rpx;
 				display: flex;
 				align-items: center;
-					
+				padding-right: 140rpx;
+
 				.icon {
 					margin-left: 4rpx;
 				}
