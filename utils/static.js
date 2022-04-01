@@ -197,3 +197,111 @@ export const CONTEST_STATUS_REVERSE = {
 		order: 1
 	}
 }
+
+
+export const problemFlag = {
+	0: {
+		value: 'A',
+		color: '#c8de00'
+	},
+	1: {
+		value: 'B',
+		color: '#83c024'
+	},
+	2: {
+		value: 'C',
+		color: '#37aa35'
+	},
+	3: {
+		value: 'D',
+		color: '#00973a'
+	},
+	4: {
+		value: 'E',
+		color: '#008f57'
+	},
+	5: {
+		value: 'F',
+		color: '#00917c'
+	},
+	6: {
+		value: 'G',
+		color: '#0091a2'
+	},
+	7: {
+		value: 'H',
+		color: '#0091c8'
+	},
+	8: {
+		value: 'I',
+		color: '#0080c7'
+	},
+	9: {
+		value: 'J',
+		color: '#0065ab'
+	},
+	10: {
+		value: 'K',
+		color: '#004890'
+	},
+	11: {
+		value: 'L',
+		color: '#202778'
+	},
+	12: {
+		value: 'M',
+		color: '#47166f'
+	},
+	13: {
+		value: 'N',
+		color: '#6f1a75'
+	},
+	14: {
+		value: 'O',
+		color: '#971a76'
+	},
+	15: {
+		value: 'P',
+		color: '#c51578'
+	},
+	16: {
+		value: 'Q',
+		color: '#db146f'
+	},
+	17: {
+		value: 'R',
+		color: '#da1c5a'
+	},
+	18: {
+		value: 'S',
+		color: '#da2045'
+	},
+	19: {
+		value: 'T',
+		color: '#d72229'
+	},
+	20: {
+		value: 'U',
+		color: '#dd4a16'
+	},
+	21: {
+		value: 'V',
+		color: '#e47615'
+	},
+	22: {
+		value: 'W',
+		color: '#efa100'
+	},
+	23: {
+		value: 'X',
+		color: '#fad900'
+	},
+	24: {
+		value: 'Y',
+		color: '#666'
+	},
+	25: {
+		value: 'Z',
+		color: '#000'
+	}
+}

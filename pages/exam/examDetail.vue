@@ -16,20 +16,30 @@
 					<t-icon type="icon-timer" color="#ed3f14" class="banner-icon"></t-icon>
 					<text>12:12:12</text>
 				</view>
-				<view class="tabs"><u-tabs :list="tabs" @click="click"></u-tabs></view>
+				<view class="tabs"><u-tabs :list="tabs" @click="clickTabs"></u-tabs></view>
+				<components :is="currentComponent" :data="list"></components>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+import problemList from './problemList';
+import rankList from './rankList';
+import recordList from './recordList';
 export default {
 	data() {
 		return {
 			id: '',
 			detail: {},
-			tabs: [{ name: '题目' }, { name: '排行榜' }]
+			tabs: [{ name: '题目', component: 'problemList' }, { name: '排行榜', component: 'rankList' }, { name: '提交记录', component: 'recordList' }],
+			list: [],
+			currentComponent: 'problemList'
 		};
+	},
+	components: {
+		problemList,
+		rankList
 	},
 	methods: {
 		async fetchExamDetail() {
@@ -40,6 +50,21 @@ export default {
 				});
 			}
 			this.detail = res.data;
+		},
+
+		async fetchProblemList() {
+			const { data } = await this.$api({ url: 'get-contest-problem', method: 'get', data: { cid: this.id } });
+			this.list = data
+		},
+		fetchData() {
+			if (this.currentComponent === 'problemList') {
+				this.fetchProblemList();
+			} else if (this.currentComponent === 'rankList') {
+			}
+		},
+		clickTabs(v) {
+			this.currentComponent = v.component;
+			console.log(v);
 		}
 	},
 	onLoad({ id }) {
@@ -47,6 +72,7 @@ export default {
 	},
 	onShow() {
 		this.fetchExamDetail();
+		this.fetchData();
 	}
 };
 </script>
