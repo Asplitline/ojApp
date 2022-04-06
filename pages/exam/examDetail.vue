@@ -8,16 +8,16 @@
 					<text class="header-info__date">{{ detail.startTime | formatDate }}</text>
 					<text class="header-info__duration">{{ $utils.showDate(detail.duration, false) }}</text>
 				</view>
-				<view class="banner">
+				<view class="banner" v-if="diff < 0">
 					<t-icon type="icon-timer" color="#666" class="banner-icon"></t-icon>
 					<text>比赛已结束</text>
 				</view>
-				<view class="banner cutdown">
+				<view class="banner cutdown" v-else>
 					<t-icon type="icon-timer" color="#ed3f14" class="banner-icon"></t-icon>
-					<text>12:12:12</text>
+					<text>{{countDown()}}</text>
 				</view>
 				<view class="tabs"><u-tabs :list="tabs" @click="clickTabs"></u-tabs></view>
-				<components :is="currentComponent" :data="list"></components>
+				<components :is="currentComponent" :data="list" :id="id"></components>
 			</view>
 		</view>
 	</view>
@@ -34,12 +34,21 @@ export default {
 			detail: {},
 			tabs: [{ name: '题目', component: 'problemList' }, { name: '排行榜', component: 'rankList' }, { name: '提交记录', component: 'recordList' }],
 			list: [],
-			currentComponent: 'problemList'
+			currentComponent: 'problemList',
+			timer: null,
+			now: 0,
+			diff: 0
 		};
 	},
 	components: {
 		problemList,
 		rankList
+	},
+	computed:{
+		showCountDown(){
+			// return this.$utils.showDate(this.diff)
+			return ''
+		}
 	},
 	methods: {
 		async fetchExamDetail() {
@@ -50,11 +59,12 @@ export default {
 				});
 			}
 			this.detail = res.data;
+			this.countDown();
 		},
 
 		async fetchProblemList() {
 			const { data } = await this.$api({ url: 'get-contest-problem', method: 'get', data: { cid: this.id } });
-			this.list = data
+			this.list = data;
 		},
 		fetchData() {
 			if (this.currentComponent === 'problemList') {
@@ -65,12 +75,26 @@ export default {
 		clickTabs(v) {
 			this.currentComponent = v.component;
 			console.log(v);
+		},
+		countDown() {
+			const endTime = new Date(this.detail.endTime).getTime();
+			this.diff = endTime - this.now;
+			return this.$utils.showDate(this.diff)
 		}
 	},
 	onLoad({ id }) {
+		console.log('onLoad');
 		this.id = id;
 	},
+	onHide() {
+		clearInterval(this.timer);
+	},
 	onShow() {
+		this.now = Date.now();
+		this.timer = setInterval(() => {
+			this.now = Date.now();
+		}, 1000);
+		console.log('onShow');
 		this.fetchExamDetail();
 		this.fetchData();
 	}

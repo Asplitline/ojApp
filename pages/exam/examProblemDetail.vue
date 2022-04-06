@@ -1,34 +1,11 @@
 <template>
 	<view>
 		<u-navbar :title="problem.title" :autoBack="true" height="44px" class="t-navbar">
-			<template #right>
-				<text class="link" @click="gotoMySubmit">我的提交</text>
-			</template>
 		</u-navbar>
 		<view class="pd-page t-pg">
-			<view class="problem-top" v-if="PROBLEM_LEVEL[problem.difficulty]">
-				<view class="problem-top__tag" :class="[PROBLEM_LEVEL[problem.difficulty].class]">{{ PROBLEM_LEVEL[problem.difficulty].value }}</view>
-				<view class="problem-top__num">
-					<text class="num">{{ problemCount.ac }}</text>
-					<text class="text">通过</text>
-				</view>
-				<view class="problem-top__num">
-					<text class="num">{{ problemCount.total }}</text>
-					<text class="text">提交</text>
-				</view>
-
-				<view class="problem-top__statistic"><t-icon @click.native="showPopup = true" type="icon-cq-piechat"></t-icon></view>
-			</view>
 			<t-problem :data="problem"></t-problem>
-			
 		</view>
-		<u-popup :show="showPopup" class="charts-popup">
-			<view class="charts-main">
-				<qiun-data-charts v-if="problemCount.total" type="pie" :chartData="chartData" :echartsApp="true" background="none" />
-				<u-empty text="没有提交记录" v-else></u-empty>
-			</view>
-			<view class="charts-tips" @click="showPopup = false"><u-icon class="close-icon" name="close" size="24" color="#fff"></u-icon></view>
-		</u-popup>
+
 	</view>
 </template>
 
@@ -38,7 +15,7 @@ import { PROBLEM_LEVEL } from '@/utils/static';
 export default {
 	data() {
 		return {
-			showPopup: false,
+			// showPopup: false,
 			chartData: {
 				series: [
 					{
@@ -79,16 +56,15 @@ export default {
 					}
 				]
 			},
-			id: '',
 			problem: {},
 			problemCount: {},
-			PROBLEM_LEVEL
+			PROBLEM_LEVEL,
+			payload: {}
 		};
 	},
 
-	onLoad({ id }) {
-		console.log(id);
-		this.id = id;
+	onLoad(payload) {
+		this.payload = payload;
 	},
 	onShow() {
 		this.fetchProblemDetail();
@@ -97,24 +73,11 @@ export default {
 		async fetchProblemDetail() {
 			const { data } = await this.$api({
 				method: 'get',
-				url: 'get-problem',
-				data: {
-					problemId: this.id
-				}
+				url: 'get-contest-problem-details',
+				data: { ...this.payload }
 			});
 			console.log(data);
 			this.problem = data.problem;
-			this.problemCount = data.problemCount;
-			this.chartData.series[0].data = this.chartData.series[0].data
-				.map(i => {
-					const key = i.name.toLowerCase();
-					const value = data.problemCount[key];
-					return {
-						...i,
-						value
-					};
-				})
-				.filter(i => i.value);
 		},
 		gotoMySubmit() {
 			uni.navigateTo({

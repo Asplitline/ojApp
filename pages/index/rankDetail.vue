@@ -86,7 +86,7 @@ export default {
 	height: 100%;
 	.rank-list {
 		position: relative;
-		padding: 24rpx 10rpx;
+		padding: 16rpx 10rpx;
 		background-color: $uni-color-white;
 		/* border: 2rpx solid $uni-border-color; */
 		/* border-radius: 0 0 20rpx 20rpx; */
