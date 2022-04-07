@@ -102,6 +102,17 @@ export function showDate(v, isMs = true) {
 	s && (str += s + '秒')
 	return str
 }
+export function formatDate(v, isMs = true) {
+	const fl = Math.floor
+	const s = fl(v % 60).toString()
+	const m = fl(v % (60 * 60) / 60).toString()
+	const h = fl(v / (60 * 60)).toString()
+	let str = ''
+	str += h.padStart(2, 0) + ':'
+	str += m.padStart(2, 0) + ':'
+	str += s.padStart(2, 0)
+	return str
+}
 
 
 export function getCurrentStatus(startTime, endTime) {

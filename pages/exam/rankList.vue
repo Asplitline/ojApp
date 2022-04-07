@@ -1,10 +1,7 @@
 <template>
 	<view>
-		<t-rank :data="loadList"></t-rank>
-		<u-loadmore :status="status" @loadmore="loadData"  v-if="!$utils.isEmpty(loadList)"/>
-		<view class="" v-else>
-			123
-		</view>
+		<t-rank :data="loadList" :showTime="true"></t-rank>
+		<t-box :show="!$utils.isEmpty(loadList)" text="暂无排名"><u-loadmore :status="status" @loadmore="loadData" v-if="!$utils.isEmpty(loadList)" /></t-box>
 	</view>
 </template>
 
@@ -23,8 +20,8 @@ export default {
 			const {
 				data: { records, total }
 			} = await this.$api({ url: 'get-contest-rank', data: { ...this.query, cid: this.id, forceRefresh: false }, method: 'get' });
-			this.total = total
-			this.handleLoadData(records)
+			this.total = total;
+			this.handleLoadData(records);
 		}
 	},
 

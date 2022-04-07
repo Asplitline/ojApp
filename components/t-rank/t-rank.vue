@@ -1,5 +1,5 @@
 <template>
-	<view class="rank-list">
+	<view class="rank-list" :class="customClass">
 		<view class="rank-item" v-for="(i, index) in data" :key="i.id">
 			<view class="rank-item__index">
 				<template v-if="index < 3">
@@ -18,15 +18,10 @@
 				{{ i.ac }}
 				<text class="suffix">AC</text>
 			</text>
-			<text class="rank-item__date">
+			<view class="rank-item__date" v-if="showTime">
 				<text class="total__date">{{ i.totalTime | showTime }}</text>
-				<view class="first__problem">
-					<t-icon type="icon-air-ballon"></t-icon>
-					<t-icon type="icon-air-ballon"></t-icon>
-					<t-icon type="icon-air-ballon"></t-icon>
-					<t-icon type="icon-air-ballon"></t-icon>
-				</view>
-			</text>
+				<view class="first__problem"><t-icon type="icon-air-ballon" v-for="item in getFirstInfo(i)" :color="item"></t-icon></view>
+			</view>
 		</view>
 		<!-- <u-loadmore :status="status" @loadmore="loadData" /> -->
 	</view>
@@ -36,15 +31,28 @@
 import * as utils from '@/utils';
 export default {
 	props: {
-		data: { type: Array, default: () => [] }
+		data: { type: Array, default: () => [] },
+		customClass: { type: String, default: 'contest' },
+		showTime: { type: Boolean, default: false }
 	},
 	name: 't-rank',
 	data() {
 		return {};
 	},
 	methods: {
-		getFirstInfo(i) {
-			return;
+		getFirstInfo(v) {
+			const arr = [];
+			for (const i in v.submissionInfo) {
+				if (v.submissionInfo[i].isFirstAC) {
+					arr.push(i);
+				}
+			}
+			return arr.length
+				? arr.map(i => {
+						const idx = i.charCodeAt() - 'A'.charCodeAt();
+						return this.$static.problemFlag[idx].color;
+				  })
+				: arr;
 		}
 	},
 	filters: {
@@ -56,7 +64,7 @@ export default {
 			}
 		},
 		showTime(v) {
-			return v;
+			return utils.formatDate(v);
 		}
 	}
 };
@@ -65,10 +73,8 @@ export default {
 <style lang="scss" scoped>
 .rank-list {
 	position: relative;
-	padding: 16rpx 10rpx;
+	padding: 16rpx 24rpx;
 	background-color: $uni-color-white;
-	/* border: 2rpx solid $uni-border-color; */
-	/* border-radius: 0 0 20rpx 20rpx; */
 	.rank-item {
 		display: flex;
 		justify-content: space-between;
@@ -76,11 +82,11 @@ export default {
 		padding: 10rpx 0;
 		font-size: 30rpx;
 		&__img {
-			max-width: 100rpx;
+			max-width: 140rpx;
 		}
 		&__avatar {
-			width: 60rpx;
-			height: 60rpx;
+			width: 70rpx;
+			height: 70rpx;
 			border-radius: 50%;
 		}
 
@@ -88,11 +94,11 @@ export default {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			width: 60rpx;
-			height: 60rpx;
+			width: 70rpx;
+			height: 70rpx;
 			border-radius: 50%;
 			background-color: $uni-color-primary;
-			font-size: 28rpx;
+			font-size: 36rpx;
 			color: $uni-color-white;
 		}
 		&__index {
@@ -108,7 +114,6 @@ export default {
 			text-overflow: ellipsis;
 			overflow: hidden;
 			white-space: nowrap;
-			font-size: 28rpx;
 			padding-left: 20rpx;
 		}
 		&__ac {
@@ -118,9 +123,48 @@ export default {
 			color: $uni-color-dark;
 
 			.suffix {
-				font-size: 26rpx;
-				margin-left: 6rpx;
+				font-size: 28rpx;
+				margin-left: 18rpx;
 				color: $uni-text-color-grey;
+			}
+		}
+	}
+	&.index {
+		padding: 16rpx 10rpx;
+	}
+	&.contest {
+		padding: 16rpx 0rpx;
+		.rank-item {
+			border-bottom: 1rpx dashed #e0f0ef;
+			&__img {
+				max-width: 100rpx;
+			}
+			&__first {
+				width: 60rpx;
+				height: 60rpx;
+			}
+			&__index {
+				min-width: 70rpx;
+			}
+			&__name {
+				width: 240rpx;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+				padding-left: 20rpx;
+			}
+			&__ac {
+				.suffix {
+					margin-left: 6rpx;
+				}
+			}
+			&__date {
+				min-width: 160rpx;
+				text-align: center;
+				.total__date {
+					color: #444;
+					font-size: 28rpx;
+				}
 			}
 		}
 	}
