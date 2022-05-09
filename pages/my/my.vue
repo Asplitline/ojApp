@@ -9,7 +9,7 @@
 				<text class="title">{{ user.username }}</text>
 				<text class="desc">{{ user.signature || '未填写' }}</text>
 			</view>
-			<view class="top-box__right" @click="goto('/pages/my/infoCenter')">
+			<view class="top-box__right" @click="showPending">
 				个人主页
 				<u-icon name="arrow-right"></u-icon>
 			</view>
@@ -76,9 +76,20 @@ export default {
 				url: '/pages/my/myInfo'
 			});
 		},
+		showPending() {
+			uni.showToast({ icon: 'none', title: '未完待续~' });
+		},
 		goto(url) {
 			if (url === '') {
-				this.showPopup = true;
+				uni.clearStorageSync()
+				uni.switchTab({
+					url: '/pages/index/index'
+				});
+				uni.showToast({
+					title: '已退出~',
+					icon: 'none'
+				});
+				// this.showPopup = true;
 			} else {
 				uni.navigateTo({
 					url
@@ -105,7 +116,8 @@ export default {
 		}
 	},
 	onShow() {
-		if (this.token?.length > 0) {
+		const token = uni.getStorageSync('token')
+		if (token?.length > 0) {
 			this.show = true;
 			this.fetchUserInfo();
 		} else {

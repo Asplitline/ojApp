@@ -1,15 +1,17 @@
 <template>
-	<view class="problem-list">
-		<view class="problem-item" v-for="(i, idx) in data" :key="i.id" @click="gotoProblem(i)">
-			<view class="problem-item__idx">
-				<t-icon type="icon-air-ballon" :color="$static.problemFlag[idx].color" fontSize="60rpx"></t-icon>
-				<!-- <text :style="{ color: $static.problemFlag[idx].color }">{{ $static.problemFlag[idx].value }}</text> -->
-				<text class="text">{{ $static.problemFlag[idx].value }}</text>
-			</view>
-			<view class="problem-item__title">{{ i.displayTitle }}</view>
-			<view class="problem-item__AC">{{ i.ac }} AC</view>
-		</view>
+	<t-box text="暂无题目">
+		<view class="problem-list">
+			<view class="problem-item" v-for="(i, idx) in data" :key="i.id" @click="gotoProblem(i)">
+				<view class="problem-item__idx">
+					<t-icon type="icon-air-ballon" :color="$static.problemFlag[idx].color" fontSize="60rpx"></t-icon>
+					<!-- <text :style="{ color: $static.problemFlag[idx].color }">{{ $static.problemFlag[idx].value }}</text> -->
+					<text class="text">{{ $static.problemFlag[idx].value }}</text>
+				</view>
+				<view class="problem-item__title">{{ i.displayTitle }}</view>
+				<view class="problem-item__AC">{{ i.ac }} AC</view>
+				</view>
 	</view>
+	</t-box>
 </template>
 
 <script>
@@ -25,11 +27,13 @@ export default {
 			uni.navigateTo({
 				url: `/pages/exam/examProblemDetail?cid=${i.cid}&displayId=${i.displayId}`
 			});
-			
 		}
 	},
 	data() {
 		return {};
+	},
+	mounted() {
+		console.log(this.data);
 	}
 };
 </script>

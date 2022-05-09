@@ -19,7 +19,7 @@ myPlugin.install = (Vue) => {
 	})
 
 	Vue.filter('firstName', (v) => {
-		return v.slice(0, 1)
+		return v ? v.slice(0, 1) : ''
 	})
 	Vue.filter('formatDate', (t, format = 'yyyy-MM-DD HH:mm:ss') => {
 		let date = t ? new Date(t) : new Date(),

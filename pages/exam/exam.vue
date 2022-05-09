@@ -2,7 +2,7 @@
 	<t-page class="exam-page">
 		<!-- <view class="exam-header"><text>考试列表</text></view> -->
 		<view class="exam-list">
-			<view class="exam-item" v-for="(i,idx) in loadList" :key="idx" @click="gotoExamDetail(i.id)">
+			<view class="exam-item" v-for="(i, idx) in loadList" :key="idx" @click="gotoExamDetail(i)">
 				<view class="exam-item__title">
 					{{ i.title }}
 					<t-icon type="icon-lock" class="icon" :color="['', '#d9534f', '#f0ad4e'][i.auth]" fontSize="40rpx" v-if="i.auth !== 0"></t-icon>
@@ -54,10 +54,12 @@ export default {
 		handleStatus({ startTime, endTime }) {
 			return this.$utils.getCurrentStatus(startTime, endTime);
 		},
-		gotoExamDetail(id) {
-			console.log(111);
+		gotoExamDetail(i) {
+			if (i.auth !== this.$static.CONTEST_TYPE.PUBLIC) {
+				return uni.showToast({ title: '没有权限', icon: 'none' });
+			}
 			uni.navigateTo({
-				url: '/pages/exam/examDetail?id=' + id
+				url: '/pages/exam/examDetail?id=' + i.id
 			});
 		}
 	},

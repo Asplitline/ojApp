@@ -9,7 +9,7 @@
 				<view class="discuss-item" v-for="i in discussList" :key="i.id" @click="gotoDetail(i)">
 					<view class="discuss-item-header">
 						<image :src="`${$imgUrl}${i.avatar}`" mode="" class="discuss-item__avatar" v-if="i.avatar"></image>
-						<view class="discuss-item__first" v-else>{{ i | firstName }}</view>
+						<view class="discuss-item__first" v-else>{{ i.author | firstName  }}</view>
 						<view class="discuss-item__title">
 							<text class="text">{{ i.title }}</text>
 							<text class="date">刚刚</text>
@@ -82,6 +82,7 @@ export default {
 			this.status = 'loading';
 			const { data } = await this.$api({ url: 'discussions', method: 'get', data: this.query });
 			this.total = data.total;
+			console.log(data);
 			if (this.isFull) {
 				this.status = 'nomore';
 			} else {

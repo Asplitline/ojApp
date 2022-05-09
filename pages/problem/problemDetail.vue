@@ -17,14 +17,14 @@
 					<text class="text">提交</text>
 				</view>
 
-				<view class="problem-top__statistic"><t-icon @click.native="showPopup = true" type="icon-cq-piechat"></t-icon></view>
+				<view class="problem-top__statistic"><t-icon @click.native="showChart" type="icon-cq-piechat"></t-icon></view>
 			</view>
 			<t-problem :data="problem"></t-problem>
 			
 		</view>
 		<u-popup :show="showPopup" class="charts-popup">
 			<view class="charts-main">
-				<qiun-data-charts v-if="problemCount.total" type="pie" :chartData="chartData" :echartsApp="true" background="none" />
+				<qiun-data-charts style="height: 500rpx;" v-if="problemCount.total" type="pie" :chartData="chartData" :echartsApp="true" background="none" />
 				<u-empty text="没有提交记录" v-else></u-empty>
 			</view>
 			<view class="charts-tips" @click="showPopup = false"><u-icon class="close-icon" name="close" size="24" color="#fff"></u-icon></view>
@@ -94,6 +94,10 @@ export default {
 		this.fetchProblemDetail();
 	},
 	methods: {
+		showChart(){
+			this.showPopup = true
+			// console.log(this.chartData);
+		},
 		async fetchProblemDetail() {
 			const { data } = await this.$api({
 				method: 'get',
@@ -102,7 +106,6 @@ export default {
 					problemId: this.id
 				}
 			});
-			console.log(data);
 			this.problem = data.problem;
 			this.problemCount = data.problemCount;
 			this.chartData.series[0].data = this.chartData.series[0].data

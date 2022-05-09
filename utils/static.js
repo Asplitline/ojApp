@@ -305,3 +305,34 @@ export const problemFlag = {
 		color: '#000'
 	}
 }
+
+
+export const CONTEST_TYPE_REVERSE = {
+  '0': {
+    name:'Public',
+    color:'success',
+    tips:'Public_Tips',
+    submit:true,              // 公开赛可看可提交
+    look:true,
+  },
+  '1':{
+    name:'Private',
+    color:'danger',
+    tips:'Private_Tips',
+    submit:false,         // 私有赛 必须要密码才能看和提交
+    look:false,
+  },
+  '2':{
+    name:'Protected',
+    color:'warning',
+    tips:'Protected_Tips',
+    submit:false,       //保护赛，可以看但是不能提交，提交需要附带比赛密码
+    look:true,
+  }
+}
+
+export const CONTEST_TYPE = {
+  PUBLIC: 0,
+  PRIVATE: 1,
+  PROTECTED: 2
+}
